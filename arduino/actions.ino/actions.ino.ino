@@ -1,6 +1,7 @@
 #define BUFFER_DELAY 6
 
 #define VOID_COMMAND -1
+#define NOOP  0
 #define MOVE_FORWARDS 1
 #define MOVE_BACKWARDS 2
 
@@ -69,6 +70,10 @@ Command parseCommand(char* readLine) {
     command.opCode = MOVE_FORWARDS;
   } else if (strcmp(commandWord, "MOVE_BACKWARDS") == 0) {
     command.opCode = MOVE_BACKWARDS;
+  } else if (strcmp(commandWord, "NOOP") == 0) {
+    command.opCode = NOOP;
+    command.parameters[0][0] = '\0';
+    return command;
   } else {
     command.opCode = VOID_COMMAND;
     command.parameters[0][0] = '\0';
@@ -99,8 +104,8 @@ int parseParameter(char* parameter) {
 
 void processCommand(Command command) {
   int speed;
-  int time = parseParameter(command.parameters[0]);
-  endTimestamp = millis() + time * 1000;
+  unsigned long time = parseParameter(command.parameters[0]);
+  endTimestamp = millis() + time;
   Serial.println(command.opCode);
   switch (command.opCode) {
     case MOVE_FORWARDS:
