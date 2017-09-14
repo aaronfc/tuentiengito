@@ -11,6 +11,8 @@
 #define ENG_B_2 8
 #define ENG_B_3 10
 
+unsigned long endTimestamp;
+
 struct Command {
   int opCode;
   char parameters[10][30];
@@ -30,10 +32,13 @@ void loop() {
   // Read sensors and notify via the serial port of any relevant situations
   // Read serial port for commands
   char* line = readLine();
-  command = parseCommand(line);
+  command= parseCommand(line);
   free(line);
-  if (command.opCode != VOID_COMMAND) {    
+  if (command.opCode != VOID_COMMAND) {
     processCommand(command);
+  }
+  if (endTimestamp > 0 && millis() >= endTimestamp) {
+    stopEverything();
   }
 }
 
@@ -67,9 +72,9 @@ Command parseCommand(char* readLine) {
   } else {
     command.opCode = VOID_COMMAND;
     command.parameters[0][0] = '\0';
-    return command;
+    return command;    
   }
-  
+
   commandWord = strtok (NULL," \n;");
   int i = 0;
   while (commandWord != NULL) {
@@ -94,12 +99,14 @@ int parseParameter(char* parameter) {
 
 void processCommand(Command command) {
   int speed;
+  int time = parseParameter(command.parameters[0]);
+  endTimestamp = millis() + time * 1000;
   Serial.println(command.opCode);
   switch (command.opCode) {
     case MOVE_FORWARDS:
       digitalWrite (ENG_A_1, HIGH);
       digitalWrite (ENG_A_2, LOW);
-      speed = parseParameter(command.parameters[0]);      
+      speed = parseParameter(command.parameters[1]);      
       Serial.println(speed);
       analogWrite (ENG_A_3, speed); //Velocidad motor A
       digitalWrite (ENG_B_1, HIGH);
@@ -109,7 +116,7 @@ void processCommand(Command command) {
     case MOVE_BACKWARDS:
       digitalWrite (ENG_A_1, LOW);
       digitalWrite (ENG_A_2, HIGH);
-      speed = parseParameter(command.parameters[0]);
+      speed = parseParameter(command.parameters[1]);
       Serial.println(speed);
       analogWrite (ENG_A_3, speed); //Velocidad motor A
       digitalWrite (ENG_B_1, LOW);
@@ -117,5 +124,14 @@ void processCommand(Command command) {
       analogWrite (ENG_B_3, speed); //Velocidad motor B
       break;
   }
+}
+
+void stopEverything() {
+  digitalWrite (ENG_A_1, LOW);
+  digitalWrite (ENG_A_2, LOW);
+  analogWrite (ENG_A_3, 0);
+  digitalWrite (ENG_B_1, LOW);
+  digitalWrite (ENG_B_2, LOW);
+  analogWrite (ENG_B_3, 0);
 }
 
