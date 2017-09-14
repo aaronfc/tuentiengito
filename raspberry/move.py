@@ -1,13 +1,41 @@
-# from serialTest import writeToSerial,readFromSerial
+from SerialChannel import SerialChannel
 from random import randint
 from time import sleep
+import sys
+import atexit
+
+
+COLLISION_THRESHOLD = 10
+serialResult = ""
+
+
+def debug_handler(data):
+    sys.stderr.write("sIn" + data)
+
+
+def getSerial(data):
+    serialResult = data
+
+
+debug = True
+if not debug:
+    channel = SerialChannel('/dev/ttyUSB0')
+    channel.addHandler(debug_handler)
+    channel.addHandler(getSerial)
 
 
 def writeToSerial(string):
-    print(string)
+    # TODO 
+    if not debug:
+        channel.write(string)
+    else:
+        print(string)
 
 
 def readFromSerial():
+    if not debug:
+        return int(serialResult.split(':')[1]) < COLLISION_THRESHOLD
+
     return randint(1, 100) > 80
 
 
@@ -54,7 +82,17 @@ def loop():
         randomTurn()
 
 
+def exit_cleanup():
+    channel.close()
+
+
 if __name__ == '__main__':
+    atexit.register(exit_cleanup)
     while True:
-        loop()
-        sleep(1)
+        try:
+            # Main loop
+            loop()
+            sleep(1)
+        except:
+            # Cleanup
+            exit_cleanup()
