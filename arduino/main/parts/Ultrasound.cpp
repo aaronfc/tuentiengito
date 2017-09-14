@@ -24,7 +24,6 @@ Ultrasound::~Ultrasound(){/*nothing to destruct*/}
 void Ultrasound::setup() {
   pinMode(triggerPin, OUTPUT); // Sets the trigPin as an Output
   pinMode(echoPin, INPUT); // Sets the echoPin as an Input
-  Serial.println(id);
 }
 
 void Ultrasound::read() {
