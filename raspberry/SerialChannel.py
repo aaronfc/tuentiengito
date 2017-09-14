@@ -26,6 +26,6 @@ class SerialChannel:
     def _readFromSerial(self, port):
         thread = threading.currentThread()
         while getattr(thread, "running", True):
-            serialIn = port.readline().decode()
+            serialIn = port.readline().decode('ascii')
             if serialIn:
                 self._handleSerialIn(serialIn)

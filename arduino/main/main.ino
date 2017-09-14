@@ -22,7 +22,9 @@ void loop()
   int us1Distance = ultrasound1->getDistance();
 
   // Write serial output
-  Serial.println("US1:" + us1Distance);
+  //Serial.println("US1:" + us1Distance);
+  Serial.print("US1:");
+  Serial.println(us1Distance);
 
   // EngineController
   char* command = engineController->readLine();
