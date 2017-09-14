@@ -4,8 +4,8 @@
 Ultrasound *ultrasound1;
 EngineController *engineController;
 
-const int US_TRIGGER_PIN = 9;
-const int US_ECHO_PIN = 10;
+const int US_TRIGGER_PIN = 13;
+const int US_ECHO_PIN = 12;
 
 void setup()
 {

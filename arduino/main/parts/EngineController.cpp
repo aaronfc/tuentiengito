@@ -33,10 +33,10 @@ class EngineController
 
 #define ENG_A_1 7
 #define ENG_A_2 6
-#define ENG_A_3 5
+#define ENG_A_3 10
 #define ENG_B_1 9
 #define ENG_B_2 8
-#define ENG_B_3 10
+#define ENG_B_3 11
 
 EngineController::EngineController() {}
 
@@ -110,7 +110,7 @@ Command EngineController::parseCommand(char* readLine) {
     i++;
   }
   command.parameters[i][0] = '\0';
-  return command;  
+  return command;
 }
 
 int EngineController::parseParameter(char* parameter) {
