@@ -1,5 +1,8 @@
+#!/usr/bin/python3
+
 import subprocess
 import os
+import sys
 from time import sleep
 
 def textToStdin(text):
@@ -11,9 +14,13 @@ def textToStdin(text):
 
 def say(text):
     read = textToStdin(text)
-    subprocess.run(["espeak", "-s", "190", "-v", "spanish"], stdin=read)
+    subprocess.Popen(["espeak", "-s", "190", "-v", "spanish"], stdin=read)
 
 
 text = "Juanjo, te amo!"
+if (len(sys.argv) > 1):
+    text = sys.argv[1]
+
 say(text)
+
 print("OK")
