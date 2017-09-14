@@ -20,8 +20,25 @@ def readFromSerial(serialPort):
 thread = threading.Thread(target=readFromSerial, args=(serialPort,))
 thread.start()
 
+UP="MOVE_FORWARDS 3000 255"
+DOWN="MOVE_BACKWARDS 3000 255"
+RIGHT="TURN_RIGHT 3000 255"
+LEFT="TURN_LEFT 3000 255"
+NOOP="NOOP 1"
+
 while True:
     line = input("$> ")
+    if line == "w":
+        writeToSerial(UP)
+    if line == "a":
+        writeToSerial(LEFT)
+    if line == "s":
+        writeToSerial(DOWN)
+    if line == "d":
+        writeToSerial(RIGHT)
+    if line == " ":
+        writeToSerial(NOOP)
+
     if line == 'quit':
         thread.running = False
         sys.exit()
