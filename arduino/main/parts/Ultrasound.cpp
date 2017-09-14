@@ -1,8 +1,7 @@
+#include "Ultrasound.h" //include the declaration for this class
+
 const float SPEED = 10.0 / 292.0 / 2.0; // cm/μs
 const float MIN_DIST = 30.0; // cm
-
-int triggerPin;
-int echoPin;
 
 //<<constructor>>
 Ultrasound::Ultrasound(int _triggerPin, int _echoPin) {
