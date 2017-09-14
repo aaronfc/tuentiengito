@@ -22,6 +22,11 @@ void loop() {
   free(line);
   if (command.opCode != VOID_COMMAND) {
     Serial.println(command.opCode);
+    int i = 0;
+    while (command.parameters[i][0] != '\0') {
+      Serial.println(command.parameters[i]);
+      i++;
+    }
   }
 }
 
@@ -59,10 +64,9 @@ Command parseCommand(char* readLine) {
   }
   
   commandWord = strtok (NULL," \n;");
-  Serial.println(commandWord);
   int i = 0;
   while (commandWord != NULL) {
-    strcpy(commandWord, command.parameters[i]);
+    strcpy(command.parameters[i], commandWord);
     commandWord = strtok(NULL, " \n;");
     i++;
   }
