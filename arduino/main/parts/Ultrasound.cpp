@@ -10,8 +10,7 @@ int echoPin;
 int collisionDistance;
 
 //<<constructor>>
-Ultrasound::Ultrasound(String _id, int _speed, int _triggerPin, int _echoPin, int 
-_collisionDistance) {
+Ultrasound::Ultrasound(String _id, int _speed, int _triggerPin, int _echoPin, int _collisionDistance) {
     id = _id;
     speed = _speed;
     triggerPin = _triggerPin;
