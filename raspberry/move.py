@@ -17,7 +17,7 @@ def getSerial(data):
     serialResult = data
 
 
-debug = True
+debug = False
 if not debug:
     channel = SerialChannel('/dev/ttyUSB0')
     channel.addHandler(debug_handler)
@@ -33,7 +33,9 @@ def writeToSerial(string):
 
 def readFromSerial():
     if not debug:
-        return int(serialResult.split(':')[1]) < COLLISION_THRESHOLD
+        parts = serialResult.split(':')
+        if len(parts) > 1:
+            return int(serialResult.split(':')[1]) < COLLISION_THRESHOLD
 
     return randint(1, 100) > 80
 
@@ -88,10 +90,10 @@ def exit_cleanup():
 if __name__ == '__main__':
     atexit.register(exit_cleanup)
     while True:
-        try:
+        #try:
             # Main loop
-            loop()
-            sleep(1 / 100.0)
-        except:
+        loop()
+        sleep(1 / 100.0)
+        #except:
             # Cleanup
-            exit_cleanup()
+           # exit_cleanup()
