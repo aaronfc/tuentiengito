@@ -30,6 +30,8 @@ class EngineController
 #define NOOP  0
 #define MOVE_FORWARDS 1
 #define MOVE_BACKWARDS 2
+#define TURN_LEFT 3
+#define TURN_RIGHT 4
 
 #define ENG_A_1 7
 #define ENG_A_2 6
@@ -92,6 +94,10 @@ Command EngineController::parseCommand(char* readLine) {
     command.opCode = MOVE_FORWARDS;
   } else if (strcmp(commandWord, "MOVE_BACKWARDS") == 0) {
     command.opCode = MOVE_BACKWARDS;
+  } else if (strcmp(commandWord, "TURN_LEFT") == 0) {
+    command.opCode = TURN_LEFT;
+  } else if (strcmp(commandWord, "TURN_RIGHT") == 0) {
+    command.opCode = TURN_RIGHT;
   } else if (strcmp(commandWord, "NOOP") == 0) {
     command.opCode = NOOP;
     command.parameters[0][0] = '\0';
@@ -128,13 +134,11 @@ void EngineController::processCommand(Command command) {
   int speed;
   unsigned long time = parseParameter(command.parameters[0]);
   endTimestamp = millis() + time;
-  Serial.println(command.opCode);
   switch (command.opCode) {
     case MOVE_FORWARDS:
       digitalWrite (ENG_A_1, HIGH);
       digitalWrite (ENG_A_2, LOW);
       speed = parseParameter(command.parameters[1]);      
-      Serial.println(speed);
       analogWrite (ENG_A_3, speed); //Velocidad motor A
       digitalWrite (ENG_B_1, HIGH);
       digitalWrite (ENG_B_2, LOW);
@@ -144,11 +148,26 @@ void EngineController::processCommand(Command command) {
       digitalWrite (ENG_A_1, LOW);
       digitalWrite (ENG_A_2, HIGH);
       speed = parseParameter(command.parameters[1]);
-      Serial.println(speed);
       analogWrite (ENG_A_3, speed); //Velocidad motor A
       digitalWrite (ENG_B_1, LOW);
       digitalWrite (ENG_B_2, HIGH);
       analogWrite (ENG_B_3, speed); //Velocidad motor B
+      break;
+    case TURN_LEFT:
+      digitalWrite (ENG_A_1, LOW);
+      digitalWrite (ENG_A_2, LOW);
+      analogWrite (ENG_A_3, MAX_SPEED);
+      digitalWrite (ENG_B_1, HIGH);
+      digitalWrite (ENG_B_2, LOW);
+      analogWrite (ENG_B_3, MAX_SPEED);
+      break;
+    case TURN_RIGHT:
+      digitalWrite (ENG_A_1, HIGH);
+      digitalWrite (ENG_A_2, LOW);
+      analogWrite (ENG_A_3, MAX_SPEED);
+      digitalWrite (ENG_B_1, LOW);
+      digitalWrite (ENG_B_2, LOW);
+      analogWrite (ENG_B_3, MAX_SPEED);
       break;
   }
 }
