@@ -1,9 +1,13 @@
 #define BUFFER_DELAY 6
 
 #define VOID_COMMAND -1
-
 #define MOVE_FORWARDS 1
 #define MOVE_BACKWARDS 2
+
+#define ENG_A_1 7
+#define ENG_A_2 6
+#define ENG_B_1 9
+#define ENG_B_2 8
 
 struct Command {
   int opCode;
@@ -12,6 +16,10 @@ struct Command {
 
 void setup() {
   Serial.begin(9600);
+  pinMode(ENG_A_1, OUTPUT);
+  pinMode(ENG_A_2, OUTPUT);
+  pinMode(ENG_B_1, OUTPUT);
+  pinMode(ENG_B_2, OUTPUT);
 }
 
 void loop() {
@@ -20,13 +28,13 @@ void loop() {
   char* line = readLine();
   command = parseCommand(line);
   free(line);
-  if (command.opCode != VOID_COMMAND) {
-    Serial.println(command.opCode);
+  if (command.opCode != VOID_COMMAND) {    
     int i = 0;
     while (command.parameters[i][0] != '\0') {
       Serial.println(command.parameters[i]);
       i++;
     }
+    processCommand(command);
   }
 }
 
@@ -72,5 +80,27 @@ Command parseCommand(char* readLine) {
   }
   command.parameters[i][0] = '\0';
   return command;  
+}
+
+void processCommand(Command command) {
+  Serial.println(command.opCode);
+  switch (command.opCode) {
+    case MOVE_FORWARDS:
+      digitalWrite (ENG_A_1, HIGH);
+      digitalWrite (ENG_A_2, LOW);
+      //analogWrite (ENA, 255); //Velocidad motor A
+      digitalWrite (ENG_B_1, HIGH);
+      digitalWrite (ENG_B_2, LOW);
+      //analogWrite (ENB, 255); //Velocidad motor B
+      break;
+    case MOVE_BACKWARDS:
+      digitalWrite (ENG_A_1, LOW);
+      digitalWrite (ENG_A_2, HIGH);
+      //analogWrite (ENA, 255); //Velocidad motor A
+      digitalWrite (ENG_B_1, LOW);
+      digitalWrite (ENG_B_2, HIGH);
+      //analogWrite (ENB, 255); //Velocidad motor B
+      break;
+  }
 }
 
