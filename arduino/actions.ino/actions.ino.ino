@@ -6,8 +6,10 @@
 
 #define ENG_A_1 7
 #define ENG_A_2 6
+#define ENG_A_3 5
 #define ENG_B_1 9
 #define ENG_B_2 8
+#define ENG_B_3 10
 
 struct Command {
   int opCode;
@@ -18,8 +20,10 @@ void setup() {
   Serial.begin(9600);
   pinMode(ENG_A_1, OUTPUT);
   pinMode(ENG_A_2, OUTPUT);
+  pinMode(ENG_A_3, OUTPUT);
   pinMode(ENG_B_1, OUTPUT);
   pinMode(ENG_B_2, OUTPUT);
+  pinMode(ENG_B_3, OUTPUT);
 }
 
 void loop() {
@@ -29,11 +33,6 @@ void loop() {
   command = parseCommand(line);
   free(line);
   if (command.opCode != VOID_COMMAND) {    
-    int i = 0;
-    while (command.parameters[i][0] != '\0') {
-      Serial.println(command.parameters[i]);
-      i++;
-    }
     processCommand(command);
   }
 }
@@ -82,24 +81,40 @@ Command parseCommand(char* readLine) {
   return command;  
 }
 
+int parseParameter(char* parameter) {
+  int intParameter = 0;
+  int i = 0;
+  while (parameter[i] != '\0') {
+    int currentFigure = parameter[i] - '0'; // Convert the numeric character to the corresponding number
+    intParameter = intParameter * 10 + currentFigure;
+    i++;
+  }
+  return intParameter;
+}
+
 void processCommand(Command command) {
+  int speed;
   Serial.println(command.opCode);
   switch (command.opCode) {
     case MOVE_FORWARDS:
       digitalWrite (ENG_A_1, HIGH);
       digitalWrite (ENG_A_2, LOW);
-      //analogWrite (ENA, 255); //Velocidad motor A
+      speed = parseParameter(command.parameters[0]);      
+      Serial.println(speed);
+      analogWrite (ENG_A_3, speed); //Velocidad motor A
       digitalWrite (ENG_B_1, HIGH);
       digitalWrite (ENG_B_2, LOW);
-      //analogWrite (ENB, 255); //Velocidad motor B
+      analogWrite (ENG_B_3, speed); //Velocidad motor B
       break;
     case MOVE_BACKWARDS:
       digitalWrite (ENG_A_1, LOW);
       digitalWrite (ENG_A_2, HIGH);
-      //analogWrite (ENA, 255); //Velocidad motor A
+      speed = parseParameter(command.parameters[0]);
+      Serial.println(speed);
+      analogWrite (ENG_A_3, speed); //Velocidad motor A
       digitalWrite (ENG_B_1, LOW);
       digitalWrite (ENG_B_2, HIGH);
-      //analogWrite (ENB, 255); //Velocidad motor B
+      analogWrite (ENG_B_3, speed); //Velocidad motor B
       break;
   }
 }
