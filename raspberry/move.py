@@ -28,8 +28,7 @@ def writeToSerial(string):
     # TODO 
     if not debug:
         channel.write(string)
-    else:
-        print(string)
+    print(string)
 
 
 def readFromSerial():
@@ -40,11 +39,11 @@ def readFromSerial():
 
 
 def forward():
-    writeToSerial("MOVE_FORWARDS 10 255")
+    writeToSerial("MOVE_FORWARDS 10000 255")
 
 
 def backward():
-    writeToSerial("MOVE_BACKWARDS 10 255")
+    writeToSerial("MOVE_BACKWARDS 10000 255")
 
 
 def randomTurn():
@@ -59,11 +58,11 @@ def turn():
 
 
 def turnLeft():
-    writeToSerial("TURN_LEFT " + repr(randint(10, 1000)))
+    writeToSerial("TURN_LEFT " + repr(randint(100, 1000)))
 
 
 def turnRight():
-    writeToSerial("TURN_RIGHT " + repr(randint(10, 1000)))
+    writeToSerial("TURN_RIGHT " + repr(randint(100, 1000)))
 
 
 def collision():
@@ -92,7 +91,7 @@ if __name__ == '__main__':
         try:
             # Main loop
             loop()
-            sleep(1)
+            sleep(1 / 100.0)
         except:
             # Cleanup
             exit_cleanup()

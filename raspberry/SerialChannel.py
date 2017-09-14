@@ -5,13 +5,13 @@ import serial
 class SerialChannel:
     def __init__(self, serialTty='/dev/ttyUSB0'):
         self._port = serial.Serial(serialTty, 9600, timeout=1)
-        self._thread = threading.Thread(target=self.readFromSerial,
+        self._thread = threading.Thread(target=self._readFromSerial,
                                         args=(self._port,))
         self._thread.start()
         self._handlers = []
 
     def write(self, data):
-        self._port.write(data.encode('ascii'))
+        self._port.write(data.encode('ascii') + "\n")
 
     def addHandler(self, handler):
         self._handlers.append(handler)
