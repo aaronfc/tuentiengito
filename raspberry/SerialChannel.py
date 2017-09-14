@@ -11,7 +11,7 @@ class SerialChannel:
         self._handlers = []
 
     def write(self, data):
-        self._port.write(data.encode('ascii') + "\n")
+        self._port.write((data + "\n").encode('ascii'))
 
     def addHandler(self, handler):
         self._handlers.append(handler)
