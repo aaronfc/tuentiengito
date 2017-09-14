@@ -24,6 +24,7 @@ class EngineController
 #endif
 
 
+#define MAX_SPEED 255
 #define BUFFER_DELAY 6
 
 #define VOID_COMMAND -1
