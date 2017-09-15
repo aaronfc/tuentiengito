@@ -147,18 +147,12 @@ int EngineController::parseParameter(char* parameter) {
 }
 
 void EngineController::processCommand(Command command) {
-  Serial.print("PROCESSING COMMAND: ");
-  Serial.println(command.opCode);
   if (command.opCode == NOOP) {
     return;
   }
   int speed;
   unsigned long time = parseParameter(command.parameters[0]);
-  endTimestamp = millis() + time;
-  Serial.print("TIME PARAMETER:");
-  Serial.println(time);
-  Serial.print("COMPUTED END TIMESTAMP:");
-  Serial.println(endTimestamp);
+  endTimestamp = millis() + time;  
   switch (command.opCode) {
     case MOVE_FORWARDS:
       digitalWrite (ENG_A_1, HIGH);
@@ -201,8 +195,7 @@ void EngineController::processCommand(Command command) {
   }
 }
 
-void EngineController::stopEverything() {
-  Serial.println("STOPPING EVERYTHING");
+void EngineController::stopEverything() {  
   digitalWrite (ENG_A_1, LOW);
   digitalWrite (ENG_A_2, LOW);
   analogWrite (ENG_A_3, 0);
@@ -213,8 +206,7 @@ void EngineController::stopEverything() {
 }
 
 void EngineController::performTembleque() {  
-  if (millis() >= temblequeEndTimestamp) {
-    Serial.println("CHANGING TEMBLEQUE");
+  if (millis() >= temblequeEndTimestamp) {    
     digitalWrite (ENG_A_1, HIGH ^ temblequeDirection);
     digitalWrite (ENG_A_2, LOW ^ temblequeDirection);
     analogWrite (ENG_A_3, MAX_SPEED);
