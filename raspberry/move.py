@@ -185,4 +185,4 @@ if __name__ == '__main__':
     atexit.register(exit_cleanup)
     while True:
         loop()
-        sleep(0.1)
+        sleep(0.02)
