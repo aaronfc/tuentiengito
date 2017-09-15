@@ -4,8 +4,9 @@ AVR_TOOLS_DIR = /usr
 
 BOARD_TAG = atmega328
 ARDUINO_PORT = /dev/ttyUSB*
-#ARDUINO_LIBS = SPI I2C pca9635 i2c_device
+ARDUINO_LIBS = FastLED
 OBJDIR = build
+USER_LIB_PATH = ../lib
 include /usr/share/arduino/Arduino.mk
 
 update:
