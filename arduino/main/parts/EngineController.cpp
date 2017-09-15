@@ -22,6 +22,7 @@ class EngineController
     int parseParameter(char* parameter);
     void processCommand(Command command);
     void stopEverything();
+    void setTemblequeEndTimestamp();
     void performTembleque();
     Command command;
 };
@@ -64,15 +65,16 @@ void EngineController::executeCommand(char* commandStr) {
   if (command.opCode != VOID_COMMAND) {
     processCommand(command);
   }
-
 }
 
-void EngineController::continueCommand() {
-  if (endTimestamp > 0 && millis() >= endTimestamp) {
-    stopEverything();
-  } else if (command.opCode == TEMBLEQUE) {
-    performTembleque();
-  }  
+void EngineController::continueCommand() {    
+  if (endTimestamp > 0) {
+    if (millis() >= endTimestamp) {      
+      stopEverything();
+    } else if (command.opCode == TEMBLEQUE) {
+      performTembleque();
+    }
+  }
 }
 
 char* EngineController::readLine() {
@@ -114,29 +116,29 @@ Command EngineController::parseCommand(char* readLine) {
     command.opCode = TEMBLEQUE;
   } else if (strcmp(commandWord, "NOOP") == 0) {
     command.opCode = NOOP;
-    command.parameters[0][0] = '\0';
+    command.parameters[0][0] = NULL;
     return command;
   } else {
     command.opCode = VOID_COMMAND;
-    command.parameters[0][0] = '\0';
+    command.parameters[0][0] = NULL;
     return command;    
   }
 
-  commandWord = strtok (NULL," \n;");
+  commandWord = strtok (NULL," \n");
   int i = 0;
   while (commandWord != NULL) {
     strcpy(command.parameters[i], commandWord);
     commandWord = strtok(NULL, " \n;");
     i++;
   }
-  command.parameters[i][0] = '\0';
+  command.parameters[i][0] = NULL;
   return command;
 }
 
 int EngineController::parseParameter(char* parameter) {
   int intParameter = 0;
   int i = 0;
-  while (parameter[i] != '\0') {
+  while (parameter[i] != NULL) {
     int currentFigure = parameter[i] - '0'; // Convert the numeric character to the corresponding number
     intParameter = intParameter * 10 + currentFigure;
     i++;
@@ -145,12 +147,18 @@ int EngineController::parseParameter(char* parameter) {
 }
 
 void EngineController::processCommand(Command command) {
+  Serial.print("PROCESSING COMMAND: ");
+  Serial.println(command.opCode);
   if (command.opCode == NOOP) {
     return;
   }
   int speed;
   unsigned long time = parseParameter(command.parameters[0]);
   endTimestamp = millis() + time;
+  Serial.print("TIME PARAMETER:");
+  Serial.println(time);
+  Serial.print("COMPUTED END TIMESTAMP:");
+  Serial.println(endTimestamp);
   switch (command.opCode) {
     case MOVE_FORWARDS:
       digitalWrite (ENG_A_1, HIGH);
@@ -186,23 +194,27 @@ void EngineController::processCommand(Command command) {
       digitalWrite (ENG_B_2, LOW);
       analogWrite (ENG_B_3, MAX_SPEED);
       break;
-    case TEMBLEQUE:
+    case TEMBLEQUE:      
+      setTemblequeEndTimestamp();
       performTembleque();
       break;
   }
 }
 
 void EngineController::stopEverything() {
+  Serial.println("STOPPING EVERYTHING");
   digitalWrite (ENG_A_1, LOW);
   digitalWrite (ENG_A_2, LOW);
   analogWrite (ENG_A_3, 0);
   digitalWrite (ENG_B_1, LOW);
   digitalWrite (ENG_B_2, LOW);
   analogWrite (ENG_B_3, 0);
+  endTimestamp = 0;
 }
 
-void EngineController::performTembleque() {
+void EngineController::performTembleque() {  
   if (millis() >= temblequeEndTimestamp) {
+    Serial.println("CHANGING TEMBLEQUE");
     digitalWrite (ENG_A_1, HIGH ^ temblequeDirection);
     digitalWrite (ENG_A_2, LOW ^ temblequeDirection);
     analogWrite (ENG_A_3, MAX_SPEED);
@@ -210,6 +222,10 @@ void EngineController::performTembleque() {
     digitalWrite (ENG_B_2, HIGH ^ temblequeDirection);
     analogWrite (ENG_B_3, MAX_SPEED);
     temblequeDirection = !temblequeDirection;
-    temblequeEndTimestamp = millis() + 500;
+    setTemblequeEndTimestamp();
   }
+}
+
+void EngineController::setTemblequeEndTimestamp() {
+  temblequeEndTimestamp = millis() + 500;
 }
