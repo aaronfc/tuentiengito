@@ -135,7 +135,7 @@ def yell():
 
 
 def fart():
-    if randint(1,10000) < 5:
+    if randint(1,2000) < 5:
         file = "/home/pi/sounds/"+repr(randint(1,5))+".wav"
         play(file)
         lightMode(LIGHT_RAINBOW)
@@ -162,10 +162,5 @@ def exit_cleanup():
 if __name__ == '__main__':
     atexit.register(exit_cleanup)
     while True:
-        #try:
-            # Main loop
         loop()
         sleep(0.1)
-        #except:
-            # Cleanup
-           # exit_cleanup()
