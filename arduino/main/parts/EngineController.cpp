@@ -219,5 +219,5 @@ void EngineController::performTembleque() {
 }
 
 void EngineController::setTemblequeEndTimestamp() {
-  temblequeEndTimestamp = millis() + 500;
+  temblequeEndTimestamp = millis() + 100;
 }
