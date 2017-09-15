@@ -4,6 +4,7 @@ from time import sleep,time
 from say import say
 import sys
 import atexit
+import random
 
 
 COLLISION_THRESHOLD = 20
@@ -92,9 +93,17 @@ def collision():
     return readFromSerial()
 
 
+sentences = ["hostias", "quítate de enmedio", "me cago en la puta", "por aquí no", "uuuuy",
+             "me cachis", "jopetas", "ouch", "ups"]
+
+
+def yell():
+    if randint(1, 10) > 8:
+        say(random.choice(sentences))
+
 def loop():
     if (collision()):
-        say("coño me he chocado")
+        yell()
         backward()
         turn()
         return
