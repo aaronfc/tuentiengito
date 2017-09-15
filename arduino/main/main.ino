@@ -1,9 +1,11 @@
 #include "parts/Ultrasound.cpp"
 #include "parts/EngineController.cpp"
 #include "parts/LedStrip.cpp"
+#include "FastRunningMedian.h"
 
 Ultrasound *ultrasound1;
 int lastUs1Value;
+FastRunningMedian<unsigned int,5,30> us1Median;
 EngineController *engineController;
 
 // const long BAUD_RATE = 115200;  // 9600 for debug
@@ -36,7 +38,8 @@ void sendEvent(String name, int value)
 void loop()
 {
   // Read sensors
-  int us1Distance = ultrasound1->getDistance();
+  us1Median.addValue(ultrasound1->getDistance());
+  int us1Distance = us1Median.getMedian();
 
   // Send events
   if (lastUs1Value != us1Distance) {
