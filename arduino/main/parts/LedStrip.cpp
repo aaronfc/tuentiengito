@@ -37,7 +37,7 @@ int getNewLedsMode(char* readLine)
     }
 }
 
-int ledsMode = 1;
+int ledsMode = 2;
 
 #define HUE_GAP 16
 #define DISTANCE 16
