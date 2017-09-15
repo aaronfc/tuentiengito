@@ -17,10 +17,9 @@ def say(text):
     subprocess.Popen(["espeak", "-s", "190", "-v", "spanish"], stdin=read)
 
 
-text = "Juanjo, te amo!"
-if (len(sys.argv) > 1):
-    text = sys.argv[1]
-
-say(text)
-
-print("OK")
+if __name__ == '__main__':
+    text = "Juanjo, te amo!"
+    if (len(sys.argv) > 1):
+        text = sys.argv[1]
+    say(text)
+    print("OK")
