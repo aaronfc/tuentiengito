@@ -1,10 +1,10 @@
-from SerialChannel import SerialChannel
 from random import randint
-from time import sleep,time
+from time import sleep, time
 from say import say
 import sys
 import atexit
 import random
+from sound import play
 
 
 COLLISION_THRESHOLD = 20
@@ -19,9 +19,17 @@ def debug_handler(data):
 
 
 debug = False
+lights = False
+
 if not debug:
+    from SerialChannel import SerialChannel
     channel = SerialChannel('/dev/ttyUSB0')
     channel.addHandler(debug_handler)
+
+
+############################################
+############# SERIAL #############
+############################################
 
 
 def writeToSerial(string):
@@ -45,6 +53,26 @@ def readFromSerial():
     return randint(1, 10000) > 9990
 
 
+
+################################################
+################## LIGHTS ######################
+################################################
+
+
+LIGHT_OFF = "LEDS_OFF"
+LIGHT_KNIGHTRIDER = "LEDS_KNIGHTRIDER"
+LIGHT_ALARM = "LEDS_ALARM"
+LIGHT_RAINBOW = "LEDS_RAINBOW"
+
+
+def lightMode(mode):
+    writeToSerial(mode)
+
+
+############################################
+######### ENGINE #############
+############################################
+
 last_forward = 0
 
 
@@ -53,6 +81,7 @@ def forward():
     if int(time()) - last_forward > 3:
         last_forward = int(time())
         writeToSerial("MOVE_FORWARDS 5000 255")
+        lightMode(LIGHT_KNIGHTRIDER)
 
 
 def backward():
@@ -93,16 +122,30 @@ def collision():
     return readFromSerial()
 
 
+################################################
+#############      SPEAK ######################
+################################################
+
 sentences = ["hostias", "quítate de enmedio", "me cago en la puta", "por aquí no", "uuuuy",
              "me cachis", "jopetas", "ouch", "ups"]
 
 
 def yell():
-    if randint(1, 10) > 8:
+    if randint(1, 10) > 7:
         say(random.choice(sentences))
 
+
+def fart():
+    if randint(1,10000) < 5:
+        file = "/home/pi/sounds/"+repr(randint(1,5))+".wav"
+        play(file)
+        lightMode(LIGHT_RAINBOW)
+
+
 def loop():
+    fart()
     if (collision()):
+        lightMode(LIGHT_ALARM)
         yell()
         backward()
         turn()
@@ -112,7 +155,8 @@ def loop():
 
 def exit_cleanup():
     writeToSerial("NOOP 12")
-    channel.close()
+    if not debug:
+        channel.close()
 
 
 if __name__ == '__main__':

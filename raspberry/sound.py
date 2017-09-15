@@ -1,18 +1,19 @@
-#!/usr/bin/python3
-
 import subprocess
 import os
 import sys
-from time import sleep
+
 
 def play(soundFile):
+    print("play: " + soundFile)
     FNULL = open(os.devnull, 'w')
-    subprocess.Popen(["play", soundFile], stdout=FNULL, stderr=subprocess.STDOUT)
+    subprocess.Popen(["play", soundFile],
+                     stdout=FNULL,
+                     stderr=subprocess.STDOUT)
 
-file = 'pedos.wav'
-if (len(sys.argv) > 1):
-    file = sys.argv[1]
 
-play(file)
-
-print("OK")
+if __name__ == '__main__':
+    file = 'pedos.wav'
+    if (len(sys.argv) > 1):
+        file = sys.argv[1]
+    play(file)
+    print("OK")
