@@ -1,22 +1,27 @@
 #include "parts/Ultrasound.cpp"
 #include "parts/EngineController.cpp"
+#include "parts/LedStrip.cpp"
 
 Ultrasound *ultrasound1;
 int lastUs1Value;
 EngineController *engineController;
 
-const long BAUD_RATE = 115200;
+const long BAUD_RATE = 115200;  // 9600 for debug
 
 const int US_TRIGGER_PIN = 13;
 const int US_ECHO_PIN = 12;
 
 void setup()
 {
+  delay(3000); // power-up safety delay
   Serial.begin(BAUD_RATE);
+  
   ultrasound1 = new Ultrasound(US_TRIGGER_PIN, US_ECHO_PIN);
   ultrasound1->setup();
   engineController = new EngineController();
   engineController->setup();
+
+  initLedStrip();
 }
 
 void sendEvent(String name, int value)
@@ -38,8 +43,15 @@ void loop()
     sendEvent("US1", us1Distance);
   }
 
-  // EngineController
+  // Commands
   char* command = engineController->readLine();
+
+  // EngineController
   engineController->executeCommand(command);
+
+  // LedsController
+  refreshLeds(command);
+
+  // Free command
   free(command);
 }
