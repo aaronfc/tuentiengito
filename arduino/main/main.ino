@@ -6,7 +6,8 @@ Ultrasound *ultrasound1;
 int lastUs1Value;
 EngineController *engineController;
 
-const long BAUD_RATE = 115200;  // 9600 for debug
+// const long BAUD_RATE = 115200;  // 9600 for debug
+const long BAUD_RATE = 9600;  // 9600 for debug
 
 const int US_TRIGGER_PIN = 13;
 const int US_ECHO_PIN = 12;

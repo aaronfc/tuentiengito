@@ -12,10 +12,9 @@ serialResult = "uninitialized"
 
 
 def debug_handler(data):
-    sys.stderr.write("sIn" + data)
     global serialResult
     serialResult = data
-    sys.stderr.write("--" + serialResult)
+    #sys.stderr.write("--" + serialResult)
 
 
 debug = False
@@ -42,7 +41,7 @@ def writeToSerial(string):
 def readFromSerial():
     if not debug:
         global serialResult
-        print("checking collision. SerialResult: " + serialResult)
+        #print("checking collision. SerialResult: " + serialResult)
         parts = serialResult.split(':')
         if len(parts) > 1:
             result = int(parts[1]) < COLLISION_THRESHOLD
@@ -154,8 +153,9 @@ def loop():
 
 
 def exit_cleanup():
-    writeToSerial("NOOP 12")
     if not debug:
+        writeToSerial("NOOP 12")
+        lightMode(LIGHT_OFF)
         channel.close()
 
 

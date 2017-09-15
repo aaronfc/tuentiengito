@@ -33,7 +33,7 @@ public:
 
 protected:
 	virtual void init() {
-		Serial.begin(115200);
+		Serial.begin(9600);
 		mWait.mark();
 	}
 
