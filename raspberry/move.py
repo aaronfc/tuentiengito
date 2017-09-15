@@ -9,10 +9,14 @@ from sound import play
 
 COLLISION_THRESHOLD = 20
 serialResult = "uninitialized"
+SPEED = repr(180)
+TURN_MIN = 500
+TURN_MAX = 1500
 
 
 def debug_handler(data):
     global serialResult
+    sys.stderr.write("--" + data)
     serialResult = data
     #sys.stderr.write("--" + serialResult)
 
@@ -79,15 +83,15 @@ def forward():
     global last_forward
     if int(time()) - last_forward > 3:
         last_forward = int(time())
-        writeToSerial("MOVE_FORWARDS 5000 255")
+        writeToSerial("MOVE_FORWARDS 5000 " + SPEED)
         lightMode(LIGHT_KNIGHTRIDER)
 
 
 def backward():
     global last_forward
     last_forward = 0
-    writeToSerial("MOVE_BACKWARDS 5000 255")
-    sleep(1)
+    writeToSerial("MOVE_BACKWARDS 5000 " + SPEED)
+    sleep(1.2)
 
 
 def randomTurn():
@@ -104,7 +108,7 @@ def turn():
 def turnLeft():
     global last_forward
     last_forward = 0
-    time_ = randint(500, 1500)
+    time_ = randint(TURN_MIN, TURN_MAX)
     writeToSerial("TURN_LEFT " + repr(time_))
     sleep(time_ / 1000)
 
@@ -112,7 +116,7 @@ def turnLeft():
 def turnRight():
     global last_forward
     last_forward = 0
-    time_ = randint(500, 1500)
+    time_ = randint(TURN_MIN, TURN_MAX)
     writeToSerial("TURN_RIGHT " + repr(time_))
     sleep(time_ / 1000)
 
@@ -122,7 +126,7 @@ def collision():
 
 
 ################################################
-#############      SPEAK ######################
+################## SPEAK ######################
 ################################################
 
 sentences = ["hostias", "quítate de enmedio", "me cago en la puta", "por aquí no", "uuuuy",
@@ -134,9 +138,27 @@ def yell():
         say(random.choice(sentences))
 
 
+sounds = ["1.wav",
+          "2.wav",
+          "4.wav",
+          "5.wav",
+          "cadaminuto.wav"
+          #"chanchanchan.mp3",
+          #"chinchun.mp3",
+          "enjuto_mojamuto_no_funciona_internet.mp3",
+          "hasta-el-infinito-y-mas-alla.mp3",
+          "hevisto.wav",
+          "matame.wav",
+          "pota.wav",
+          #"tintontin.mp3",
+          #"tiruriru.mp3"
+          ]
+
+
 def fart():
-    if randint(1,2000) < 5:
-        file = "/home/pi/sounds/"+repr(randint(1,5))+".wav"
+    if randint(1, 1000) < 5:
+        print("pedo")
+        file = "/home/pi/sounds/" + random.choice(sounds)
         play(file)
         lightMode(LIGHT_RAINBOW)
 
