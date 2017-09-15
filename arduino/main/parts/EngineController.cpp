@@ -16,7 +16,7 @@ class EngineController
     void continueCommand();
   private:
     unsigned long endTimestamp;
-    bool temblequeDirection;
+    uint8_t temblequeDirection;
     unsigned long temblequeEndTimestamp;
     Command parseCommand(char* command);
     int parseParameter(char* parameter);
@@ -206,12 +206,12 @@ void EngineController::stopEverything() {
 }
 
 void EngineController::performTembleque() {  
-  if (millis() >= temblequeEndTimestamp) {    
-    digitalWrite (ENG_A_1, HIGH ^ temblequeDirection);
-    digitalWrite (ENG_A_2, LOW ^ temblequeDirection);
+  if (millis() >= temblequeEndTimestamp) {        
+    digitalWrite (ENG_A_1, temblequeDirection? HIGH: LOW);
+    digitalWrite (ENG_A_2,  temblequeDirection? LOW: HIGH);
     analogWrite (ENG_A_3, MAX_SPEED);
-    digitalWrite (ENG_B_1, LOW ^ temblequeDirection);
-    digitalWrite (ENG_B_2, HIGH ^ temblequeDirection);
+    digitalWrite (ENG_B_1, temblequeDirection? LOW: HIGH);
+    digitalWrite (ENG_B_2, temblequeDirection? HIGH: LOW);
     analogWrite (ENG_B_3, MAX_SPEED);
     temblequeDirection = !temblequeDirection;
     setTemblequeEndTimestamp();
