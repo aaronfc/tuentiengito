@@ -46,12 +46,16 @@ void loop()
   // Commands
   char* command = engineController->readLine();
 
-  // EngineController
-  engineController->executeCommand(command);
+  // EngineController  
+  if (command[0] != '\0') {    
+    engineController->executeCommand(command);  
+  } else {
+    engineController->continueCommand();
+  }
 
   // LedsController
   refreshLeds(command);
-
+  
   // Free command
   free(command);
 }
