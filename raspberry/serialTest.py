@@ -3,7 +3,7 @@ import sys
 import serial
 from time import sleep
 
-serialPort = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
+serialPort = serial.Serial('/dev/ttyUSB0', 115200, timeout=1)
 
 def handleSerialIn(data):
     sys.stderr.write("sIn: "+data)
