@@ -1,38 +1,4 @@
-#ifndef INC_ENGINECONTROLLER_H
-#define INC_ENGINECONTROLLER_H
-
-struct Command {
-  int opCode;
-  char parameters[10][30];
-} command;
-
-class EngineController
-{
-  public:
-    EngineController();
-    void setup();
-    char* readLine();
-    void executeCommand(char* str);
-    void continueCommand();
-    void upCounterA();
-    void upCounterB();
-  private:
-    unsigned long endTimestamp;
-    uint8_t temblequeDirection;
-    unsigned long temblequeEndTimestamp;
-    Command parseCommand(char* command);
-    int parseParameter(char* parameter);
-    void processCommand(Command command);
-    void stopEverything();
-    void setTemblequeEndTimestamp();
-    void performTembleque();
-    void resetCounters();
-    Command command;
-    int counterA;
-    int counterB;
-};
-
-#endif
+#include "EngineController.h"
 
 #define MAX_SPEED 255
 #define BUFFER_DELAY 6
@@ -54,9 +20,9 @@ class EngineController
 #define ENG_B_2 8
 #define ENG_B_3 11
 
-EngineController::EngineController() {
-  counterA = 0;
-  counterB = 0;
+EngineController& EngineController::instance() {
+  static EngineController instance;
+  return instance;
 }
 
 void EngineController::setup() {
@@ -259,4 +225,12 @@ void EngineController::upCounterA() {
 
 void EngineController::upCounterB() {
   counterB++;
+}
+
+void EngineController::isrEncoderA() {
+  EngineController::instance().upCounterA();
+}
+
+void EngineController::isrEncoderB() {
+  EngineController::instance().upCounterB();
 }

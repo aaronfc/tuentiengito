@@ -9,7 +9,7 @@
 Ultrasound *ultrasound1;
 int lastUs1Value;
 FastRunningMedian<unsigned int,5,30> us1Median;
-static EngineController *engineController;
+EngineController& engineController = EngineController::instance();
 
 // const long BAUD_RATE = 115200;  // 9600 for debug
 const long BAUD_RATE = 57600;  // 9600 for debug
@@ -21,16 +21,16 @@ void setup()
 {
   delay(3000); // power-up safety delay
   Serial.begin(BAUD_RATE);
-  
+                                                                                                                                                                                                                                 
   ultrasound1 = new Ultrasound(US_TRIGGER_PIN, US_ECHO_PIN);
   ultrasound1->setup();  
-  engineController->setup(); 
+  engineController.setup(); 
 
   // Setup the encoders
   pinMode(ENC_A, INPUT);
   pinMode(ENC_B, INPUT);
-  attachInterrupt(digitalPinToInterrupt(ENC_A), upCounterA, FALLING);
-  attachInterrupt(digitalPinToInterrupt(ENC_B), upCounterB, FALLING);
+  attachInterrupt(digitalPinToInterrupt(ENC_A), EngineController::isrEncoderA, FALLING);
+  attachInterrupt(digitalPinToInterrupt(ENC_B), EngineController::isrEncoderB, FALLING);
 
   initLedStrip();
 }
@@ -56,13 +56,13 @@ void loop()
   }
 
   // Commands
-  char* command = engineController->readLine();
+  char* command = engineController.readLine();
 
   // EngineController  
   if (command[0] != '\0') {    
-    engineController->executeCommand(command);  
+    engineController.executeCommand(command);  
   } else {
-    engineController->continueCommand();
+    engineController.continueCommand();
   }
 
   // LedsController
@@ -70,16 +70,4 @@ void loop()
   
   // Free command
   free(command);
-}
-
-void upCounterA() {
-  if (engineController) {
-    engineController->upCounterA();
-  }
-}
-
-void upCounterB() {
-  if (engineController) {
-    engineController->upCounterB();
-  }
 }
