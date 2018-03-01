@@ -24,13 +24,19 @@ class EngineController
     void stopEverything();
     void setTemblequeEndTimestamp();
     void performTembleque();
+    void counterA();
+    void counterB();
+    void resetCounters();
     Command command;
+    int counterA;
+    int counterB;
 };
 
 #endif
 
 #define MAX_SPEED 255
 #define BUFFER_DELAY 6
+#define GAP_THRESHOLD 50
 
 #define VOID_COMMAND -1
 #define NOOP  0
@@ -43,11 +49,17 @@ class EngineController
 #define ENG_A_1 7
 #define ENG_A_2 6
 #define ENG_A_3 10
+#define ENC_A 5
+
 #define ENG_B_1 9
 #define ENG_B_2 8
 #define ENG_B_3 11
+#define ENC_B 4
 
-EngineController::EngineController() {}
+EngineController::EngineController() {
+  counterA = 0;
+  counterB = 0;
+}
 
 void EngineController::setup() {
   pinMode(ENG_A_1, OUTPUT);
@@ -56,6 +68,12 @@ void EngineController::setup() {
   pinMode(ENG_B_1, OUTPUT);
   pinMode(ENG_B_2, OUTPUT);
   pinMode(ENG_B_3, OUTPUT);
+
+  pinMode(ENC_A, INPUT);
+  pinMode(ENC_B, INPUT);
+
+  attachInterrupt(digitalPinToInterrupt(ENC_A), countA, FALLING);
+  attachInterrupt(digitalPinToInterrupt(ENC_B), countA, FALLING);
 }
 
 void EngineController::executeCommand(char* commandStr) {
@@ -158,10 +176,22 @@ void EngineController::processCommand(Command command) {
       digitalWrite (ENG_A_1, HIGH);
       digitalWrite (ENG_A_2, LOW);
       speed = parseParameter(command.parameters[1]);      
-      analogWrite (ENG_A_3, speed); 
+      int gap = counterA - counterB;
+      int correctedSpeedA = speed;
+      int correctedSpeedB = speed;
+      if (gap > GAP_THRESHOLD) {
+	// Wheel A goes too fast
+        correctedSpeedA = (correctedSpeedA - 1) % 255;
+        correctedSpeedB = (correctedSpeedB + 1) % 255;
+      } else if (gap < -GAP_THRESHOLD) {
+	// Wheel B goes too fast
+        correctedSpeedA = (correctedSpeedA + 1) % 255;
+        correctedSpeedB = (correctedSpeedB - 1) % 255;
+      };
+      analogWrite (ENG_A_3, correctedSpeedA); 
       digitalWrite (ENG_B_1, HIGH);
       digitalWrite (ENG_B_2, LOW);
-      analogWrite (ENG_B_3, speed); 
+      analogWrite (ENG_B_3, correctedSpeedB); 
       break;
     case MOVE_BACKWARDS:
       digitalWrite (ENG_A_1, LOW);
@@ -179,6 +209,7 @@ void EngineController::processCommand(Command command) {
       digitalWrite (ENG_B_1, HIGH);
       digitalWrite (ENG_B_2, LOW);
       analogWrite (ENG_B_3, MAX_SPEED);
+      resetCounters();
       break;
     case TURN_RIGHT:
       digitalWrite (ENG_A_1, HIGH);
@@ -187,6 +218,7 @@ void EngineController::processCommand(Command command) {
       digitalWrite (ENG_B_1, LOW);
       digitalWrite (ENG_B_2, LOW);
       analogWrite (ENG_B_3, MAX_SPEED);
+      resetCounters();
       break;
     case TEMBLEQUE:      
       setTemblequeEndTimestamp();
@@ -220,4 +252,17 @@ void EngineController::performTembleque() {
 
 void EngineController::setTemblequeEndTimestamp() {
   temblequeEndTimestamp = millis() + 100;
+}
+
+void EngineContnroller::resetCounters() {
+  counterA = 0;
+  counterB = 0;
+}
+
+void EngineContnroller::countA() {
+  counterA++;
+}
+
+void EngineContnroller::countB() {
+  counterB++;
 }
