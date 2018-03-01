@@ -253,10 +253,10 @@ void EngineController::resetCounters() {
   counterB = 0;
 }
 
-void static EngineController::upCounterA() {
+void EngineController::upCounterA() {
   counterA++;
 }
 
-void static EngineController::upCounterB() {
+void EngineController::upCounterB() {
   counterB++;
 }
