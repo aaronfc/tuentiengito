@@ -3,10 +3,13 @@
 #include "parts/LedStrip.cpp"
 #include "FastRunningMedian.h"
 
+#define ENC_A 5
+#define ENC_B 4
+
 Ultrasound *ultrasound1;
 int lastUs1Value;
 FastRunningMedian<unsigned int,5,30> us1Median;
-EngineController *engineController;
+static EngineController *engineController;
 
 // const long BAUD_RATE = 115200;  // 9600 for debug
 const long BAUD_RATE = 57600;  // 9600 for debug
@@ -20,9 +23,14 @@ void setup()
   Serial.begin(BAUD_RATE);
   
   ultrasound1 = new Ultrasound(US_TRIGGER_PIN, US_ECHO_PIN);
-  ultrasound1->setup();
-  engineController = new EngineController();
-  engineController->setup();
+  ultrasound1->setup();  
+  engineController->setup(); 
+
+  // Setup the encoders
+  pinMode(ENC_A, INPUT);
+  pinMode(ENC_B, INPUT);
+  attachInterrupt(digitalPinToInterrupt(ENC_A), upCounterA, FALLING);
+  attachInterrupt(digitalPinToInterrupt(ENC_B), upCounterB, FALLING);
 
   initLedStrip();
 }
@@ -62,4 +70,16 @@ void loop()
   
   // Free command
   free(command);
+}
+
+void upCounterA() {
+  if (engineController) {
+    engineController->upCounterA();
+  }
+}
+
+void upCounterB() {
+  if (engineController) {
+    engineController->upCounterB();
+  }
 }

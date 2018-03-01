@@ -14,6 +14,8 @@ class EngineController
     char* readLine();
     void executeCommand(char* str);
     void continueCommand();
+    void upCounterA();
+    void upCounterB();
   private:
     unsigned long endTimestamp;
     uint8_t temblequeDirection;
@@ -24,8 +26,6 @@ class EngineController
     void stopEverything();
     void setTemblequeEndTimestamp();
     void performTembleque();
-    void counterA();
-    void counterB();
     void resetCounters();
     Command command;
     int counterA;
@@ -49,12 +49,10 @@ class EngineController
 #define ENG_A_1 7
 #define ENG_A_2 6
 #define ENG_A_3 10
-#define ENC_A 5
 
 #define ENG_B_1 9
 #define ENG_B_2 8
 #define ENG_B_3 11
-#define ENC_B 4
 
 EngineController::EngineController() {
   counterA = 0;
@@ -68,12 +66,6 @@ void EngineController::setup() {
   pinMode(ENG_B_1, OUTPUT);
   pinMode(ENG_B_2, OUTPUT);
   pinMode(ENG_B_3, OUTPUT);
-
-  pinMode(ENC_A, INPUT);
-  pinMode(ENC_B, INPUT);
-
-  attachInterrupt(digitalPinToInterrupt(ENC_A), countA, FALLING);
-  attachInterrupt(digitalPinToInterrupt(ENC_B), countA, FALLING);
 }
 
 void EngineController::executeCommand(char* commandStr) {
@@ -172,26 +164,27 @@ void EngineController::processCommand(Command command) {
   unsigned long time = parseParameter(command.parameters[0]);
   endTimestamp = millis() + time;  
   switch (command.opCode) {
-    case MOVE_FORWARDS:
-      digitalWrite (ENG_A_1, HIGH);
-      digitalWrite (ENG_A_2, LOW);
-      speed = parseParameter(command.parameters[1]);      
-      int gap = counterA - counterB;
-      int correctedSpeedA = speed;
-      int correctedSpeedB = speed;
-      if (gap > GAP_THRESHOLD) {
-	// Wheel A goes too fast
-        correctedSpeedA = (correctedSpeedA - 1) % 255;
-        correctedSpeedB = (correctedSpeedB + 1) % 255;
-      } else if (gap < -GAP_THRESHOLD) {
-	// Wheel B goes too fast
-        correctedSpeedA = (correctedSpeedA + 1) % 255;
-        correctedSpeedB = (correctedSpeedB - 1) % 255;
-      };
-      analogWrite (ENG_A_3, correctedSpeedA); 
-      digitalWrite (ENG_B_1, HIGH);
-      digitalWrite (ENG_B_2, LOW);
-      analogWrite (ENG_B_3, correctedSpeedB); 
+    case MOVE_FORWARDS: {
+        speed = parseParameter(command.parameters[1]);      
+        int gap = counterA - counterB;
+        int correctedSpeedA = speed;
+        int correctedSpeedB = speed;
+        if (gap > GAP_THRESHOLD) {
+    	// Wheel A goes too fast
+          correctedSpeedA = (speed - 1) % 255;
+          correctedSpeedB = (speed + 1) % 255;
+        } else if (gap < -GAP_THRESHOLD) {
+  	// Wheel B goes too fast
+          correctedSpeedA = (speed + 1) % 255;
+          correctedSpeedB = (speed - 1) % 255;
+        };
+        digitalWrite (ENG_A_1, HIGH);
+        digitalWrite (ENG_A_2, LOW);
+        analogWrite (ENG_A_3, correctedSpeedA); 
+        digitalWrite (ENG_B_1, HIGH);
+        digitalWrite (ENG_B_2, LOW);
+        analogWrite (ENG_B_3, correctedSpeedB); 
+      }
       break;
     case MOVE_BACKWARDS:
       digitalWrite (ENG_A_1, LOW);
@@ -201,6 +194,7 @@ void EngineController::processCommand(Command command) {
       digitalWrite (ENG_B_1, LOW);
       digitalWrite (ENG_B_2, HIGH);
       analogWrite (ENG_B_3, speed); 
+      resetCounters();
       break;
     case TURN_LEFT:
       digitalWrite (ENG_A_1, LOW);
@@ -259,10 +253,10 @@ void EngineController::resetCounters() {
   counterB = 0;
 }
 
-void EngineController::countA() {
+void static EngineController::upCounterA() {
   counterA++;
 }
 
-void EngineController::countB() {
+void static EngineController::upCounterB() {
   counterB++;
 }
