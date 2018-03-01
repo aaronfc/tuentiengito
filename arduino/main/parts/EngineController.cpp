@@ -254,15 +254,15 @@ void EngineController::setTemblequeEndTimestamp() {
   temblequeEndTimestamp = millis() + 100;
 }
 
-void EngineContnroller::resetCounters() {
+void EngineController::resetCounters() {
   counterA = 0;
   counterB = 0;
 }
 
-void EngineContnroller::countA() {
+void EngineController::countA() {
   counterA++;
 }
 
-void EngineContnroller::countB() {
+void EngineController::countB() {
   counterB++;
 }
