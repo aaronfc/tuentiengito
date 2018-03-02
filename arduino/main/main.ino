@@ -3,6 +3,16 @@
 #include "parts/LedStrip.cpp"
 #include "FastRunningMedian.h"
 
+#ifndef digitalPinToInterrupt
+inline unsigned char  digitalPinToInterrupt(unsigned char Interrupt_pin) { return Interrupt_pin; } //This isn't included in the stm32duino libs (yet)
+#endif
+#ifndef portOutputRegister
+#define portOutputRegister(port) (volatile byte *)( &(port->regs->ODR) ) //These are defined in STM32F1/variants/generic_stm32f103c/variant.h but return a non byte* value
+#endif
+#ifndef portInputRegister
+#define portInputRegister(port) (volatile byte *)( &(port->regs->IDR) ) //These are defined in STM32F1/variants/generic_stm32f103c/variant.h but return a non byte* value
+#endif
+
 #define ENC_A 5
 #define ENC_B 4
 

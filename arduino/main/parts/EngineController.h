@@ -2,8 +2,8 @@
 #define INC_ENGINECONTROLLER_H
 
 struct Command {
-	  int opCode;
-	    char parameters[10][30];
+  int opCode;
+  char parameters[10][30];
 } command;
 
 class EngineController {
