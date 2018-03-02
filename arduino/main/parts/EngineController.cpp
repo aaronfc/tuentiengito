@@ -1,5 +1,9 @@
 #include "EngineController.h"
 
+#ifndef INC_ENGINE_H
+#include "Engine.h"
+#endif
+
 #define MAX_SPEED 255
 #define BUFFER_DELAY 6
 
@@ -11,22 +15,14 @@
 #define TURN_RIGHT 4
 #define TEMBLEQUE 5
 
-#define ENG_A_1 7
-#define ENG_A_2 6
-#define ENG_A_3 10
-#define ENG_B_1 9
-#define ENG_B_2 8
-#define ENG_B_3 11
-
-EngineController::EngineController() {}
+EngineController::EngineController(Engine* rightEngine, Engine* leftEngine) {
+  _rightEngine = rightEngine;
+  _leftEngine = leftEngine;
+}
 
 void EngineController::setup() {
-  pinMode(ENG_A_1, OUTPUT);
-  pinMode(ENG_A_2, OUTPUT);
-  pinMode(ENG_A_3, OUTPUT);
-  pinMode(ENG_B_1, OUTPUT);
-  pinMode(ENG_B_2, OUTPUT);
-  pinMode(ENG_B_3, OUTPUT);
+  _rightEngine->setup();
+  _leftEngine->setup();
 }
 
 void EngineController::executeCommand(char* commandStr) {
@@ -126,38 +122,22 @@ void EngineController::processCommand(Command command) {
   endTimestamp = millis() + time;  
   switch (command.opCode) {
     case MOVE_FORWARDS:
-      digitalWrite (ENG_A_1, HIGH);
-      digitalWrite (ENG_A_2, LOW);
       speed = parseParameter(command.parameters[1]);      
-      analogWrite (ENG_A_3, speed); 
-      digitalWrite (ENG_B_1, HIGH);
-      digitalWrite (ENG_B_2, LOW);
-      analogWrite (ENG_B_3, speed); 
+      _rightEngine->forwards(speed);
+      _leftEngine->forwards(speed);
       break;
     case MOVE_BACKWARDS:
-      digitalWrite (ENG_A_1, LOW);
-      digitalWrite (ENG_A_2, HIGH);
       speed = parseParameter(command.parameters[1]);
-      analogWrite (ENG_A_3, speed); 
-      digitalWrite (ENG_B_1, LOW);
-      digitalWrite (ENG_B_2, HIGH);
-      analogWrite (ENG_B_3, speed); 
+      _rightEngine->backwards(speed);
+      _leftEngine->backwards(speed);
       break;
     case TURN_LEFT:
-      digitalWrite (ENG_A_1, LOW);
-      digitalWrite (ENG_A_2, LOW);
-      analogWrite (ENG_A_3, MAX_SPEED);
-      digitalWrite (ENG_B_1, HIGH);
-      digitalWrite (ENG_B_2, LOW);
-      analogWrite (ENG_B_3, MAX_SPEED);
+      _rightEngine->stop();
+      _leftEngine->forwards(MAX_SPEED);
       break;
     case TURN_RIGHT:
-      digitalWrite (ENG_A_1, HIGH);
-      digitalWrite (ENG_A_2, LOW);
-      analogWrite (ENG_A_3, MAX_SPEED);
-      digitalWrite (ENG_B_1, LOW);
-      digitalWrite (ENG_B_2, LOW);
-      analogWrite (ENG_B_3, MAX_SPEED);
+      _rightEngine->forwards(MAX_SPEED);
+      _leftEngine->stop();
       break;
     case TEMBLEQUE:      
       setTemblequeEndTimestamp();
@@ -167,23 +147,20 @@ void EngineController::processCommand(Command command) {
 }
 
 void EngineController::stopEverything() {  
-  digitalWrite (ENG_A_1, LOW);
-  digitalWrite (ENG_A_2, LOW);
-  analogWrite (ENG_A_3, 0);
-  digitalWrite (ENG_B_1, LOW);
-  digitalWrite (ENG_B_2, LOW);
-  analogWrite (ENG_B_3, 0);
+  _rightEngine->stop();
+  _leftEngine->stop();
   endTimestamp = 0;
 }
 
 void EngineController::performTembleque() {  
-  if (millis() >= temblequeEndTimestamp) {        
-    digitalWrite (ENG_A_1, temblequeDirection? HIGH: LOW);
-    digitalWrite (ENG_A_2,  temblequeDirection? LOW: HIGH);
-    analogWrite (ENG_A_3, MAX_SPEED);
-    digitalWrite (ENG_B_1, temblequeDirection? LOW: HIGH);
-    digitalWrite (ENG_B_2, temblequeDirection? HIGH: LOW);
-    analogWrite (ENG_B_3, MAX_SPEED);
+  if (millis() >= temblequeEndTimestamp) {     
+    if (temblequeDirection) {
+      _rightEngine->forwards(MAX_SPEED);
+      _leftEngine->backwards(MAX_SPEED);
+    } else {
+      _rightEngine->backwards(MAX_SPEED);
+      _leftEngine->forwards(MAX_SPEED);
+    }
     temblequeDirection = !temblequeDirection;
     setTemblequeEndTimestamp();
   }

@@ -1,6 +1,10 @@
 #ifndef INC_ENGINECONTROLLER_H
 #define INC_ENGINECONTROLLER_H
 
+#ifndef INC_ENGINE_H
+#include "Engine.h"
+#endif
+
 struct Command {
   int opCode;
   char parameters[10][30];
@@ -9,7 +13,7 @@ struct Command {
 class EngineController
 {
   public:
-    EngineController();
+    EngineController(Engine* rightEngine, Engine* leftEngine);
     void setup();
     char* readLine();
     void executeCommand(char* str);
@@ -25,6 +29,8 @@ class EngineController
     void setTemblequeEndTimestamp();
     void performTembleque();
     Command command;
+    Engine* _rightEngine;
+    Engine* _leftEngine;
 };
 
 #endif

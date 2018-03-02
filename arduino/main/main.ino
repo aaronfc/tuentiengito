@@ -1,7 +1,15 @@
 #include "parts/Ultrasound.cpp"
 #include "parts/EngineController.cpp"
 #include "parts/LedStrip.cpp"
+#include "parts/Engine.cpp"
 #include "FastRunningMedian.h"
+
+#define ENG_A_1 7
+#define ENG_A_2 6
+#define ENG_A_3 10
+#define ENG_B_1 9
+#define ENG_B_2 8
+#define ENG_B_3 11
 
 Ultrasound *ultrasound1;
 int lastUs1Value;
@@ -22,7 +30,9 @@ void setup()
   
   ultrasound1 = new Ultrasound(US_TRIGGER_PIN, US_ECHO_PIN);
   ultrasound1->setup();
-  engineController = new EngineController();
+  Engine* rightEngine = new Engine(ENG_A_1, ENG_A_2, ENG_A_3);
+  Engine* leftEngine = new Engine(ENG_B_1, ENG_B_2, ENG_B_3);
+  engineController = new EngineController(rightEngine, leftEngine);
   engineController->setup();
 
   initLedStrip();
