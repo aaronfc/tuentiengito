@@ -5,10 +5,23 @@
 #include "Engine.h"
 #endif
 
-struct Command {
-  int opCode;
-  char parameters[10][30];
-} command;
+class Command {
+  public:
+    Command(byte opCode, Engine* rightEngine, Engine* leftEngine);
+    virtual void run();
+    void performTembleque();
+    int getDuration();
+    byte _opCode;
+    char _parameters[10][30];
+  protected:
+    Engine* _rightEngine;
+    Engine* _leftEngine;
+    int parseParameter(char* parameter);
+  private:
+    uint8_t temblequeDirection;
+    unsigned long temblequeEndTimestamp;
+    void setTemblequeEndTimestamp();
+};
 
 class EngineController
 {
@@ -20,15 +33,10 @@ class EngineController
     void continueCommand();
   private:
     unsigned long endTimestamp;
-    uint8_t temblequeDirection;
-    unsigned long temblequeEndTimestamp;
-    Command parseCommand(char* command);
-    int parseParameter(char* parameter);
-    void processCommand(Command command);
+    Command* parseCommand(char* command);
+    void processCommand(Command* command);
     void stopEverything();
-    void setTemblequeEndTimestamp();
-    void performTembleque();
-    Command command;
+    Command* command;
     Engine* _rightEngine;
     Engine* _leftEngine;
 };
