@@ -22,9 +22,9 @@ class MoveForwardsCommand : public Command {
     MoveForwardsCommand(Engine* rightEngine, Engine* leftEngine): Command(MOVE_FORWARDS, rightEngine, leftEngine){};
 
     void run() {
-      int speed = parseParameter(_parameters[1]);      
-      _rightEngine->forwards(speed);
-      _leftEngine->forwards(speed);
+      int speed = parseParameter(parameters[1]);      
+      rightEngine->forwards(speed);
+      leftEngine->forwards(speed);
     }
 };
 
@@ -34,9 +34,9 @@ class MoveBackwardsCommand : public Command {
     MoveBackwardsCommand(Engine* rightEngine, Engine* leftEngine): Command(MOVE_BACKWARDS, rightEngine, leftEngine){};
 
     void run() {
-      int speed = parseParameter(_parameters[1]);      
-      _rightEngine->backwards(speed);
-      _leftEngine->backwards(speed);
+      int speed = parseParameter(parameters[1]);      
+      rightEngine->backwards(speed);
+      leftEngine->backwards(speed);
     }
 };
 
@@ -47,8 +47,8 @@ class MoveRightCommand : public Command {
     MoveRightCommand(Engine* rightEngine, Engine* leftEngine): Command(TURN_RIGHT, rightEngine, leftEngine){};
 
     void run() {
-      _rightEngine->forwards(MAX_SPEED);
-      _leftEngine->stop();
+      rightEngine->forwards(MAX_SPEED);
+      leftEngine->stop();
     }
 };
 
@@ -58,26 +58,26 @@ class MoveLeftCommand : public Command {
     MoveLeftCommand(Engine* rightEngine, Engine* leftEngine): Command(TURN_LEFT, rightEngine, leftEngine){};
 
     void run() {
-      _rightEngine->stop();
-      _leftEngine->forwards(MAX_SPEED);
+      rightEngine->stop();
+      leftEngine->forwards(MAX_SPEED);
     }
 };
 
 EngineController::EngineController(Engine* rightEngine, Engine* leftEngine) {
-  _rightEngine = rightEngine;
-  _leftEngine = leftEngine;
+  this->rightEngine = rightEngine;
+  this->leftEngine = leftEngine;
 }
 
 void EngineController::setup() {
-  _rightEngine->setup();
-  _leftEngine->setup();
+  rightEngine->setup();
+  leftEngine->setup();
 }
 
 void EngineController::executeCommand(char* commandStr) {
   // Read sensors and notify via the serial port of any relevant situations
   // Read serial port for commands
   command = parseCommand(commandStr);
-  if (command->_opCode != VOID_COMMAND) {
+  if (command->opCode != VOID_COMMAND) {
     processCommand(command);
   }
   // delete command;
@@ -87,7 +87,7 @@ void EngineController::continueCommand() {
   if (endTimestamp > 0) {
     if (millis() >= endTimestamp) {      
       stopEverything();
-    } else if (command->_opCode == TEMBLEQUE) {
+    } else if (command->opCode == TEMBLEQUE) {
       command->performTembleque();
     }
   }
@@ -121,33 +121,33 @@ Command* EngineController::parseCommand(char* readLine) {
   char* commandWord;
   commandWord = strtok(readLine, " \n;");
   if (strcmp(commandWord, "MOVE_FORWARDS") == 0) {
-    command = new MoveForwardsCommand(_rightEngine, _leftEngine);
+    command = new MoveForwardsCommand(rightEngine, leftEngine);
   } else if (strcmp(commandWord, "MOVE_BACKWARDS") == 0) {
-    command = new MoveBackwardsCommand(_rightEngine, _leftEngine);
+    command = new MoveBackwardsCommand(rightEngine, leftEngine);
   } else if (strcmp(commandWord, "TURN_LEFT") == 0) {
-    command = new MoveLeftCommand(_rightEngine, _leftEngine);
+    command = new MoveLeftCommand(rightEngine, leftEngine);
   } else if (strcmp(commandWord, "TURN_RIGHT") == 0) {
-    command = new MoveRightCommand(_rightEngine, _leftEngine);
+    command = new MoveRightCommand(rightEngine, leftEngine);
   } else if (strcmp(commandWord, "TEMBLEQUE") == 0) {
-    command = new Command(TEMBLEQUE, _rightEngine, _leftEngine);
+    command = new Command(TEMBLEQUE, rightEngine, leftEngine);
   } else if (strcmp(commandWord, "NOOP") == 0) {
-    command = new Command(NOOP, _rightEngine, _leftEngine);
-    command->_parameters[0][0] = NULL;
+    command = new Command(NOOP, rightEngine, leftEngine);
+    command->parameters[0][0] = NULL;
     return command;
   } else {
-    command = new Command(VOID_COMMAND, _rightEngine, _leftEngine);
-    command->_parameters[0][0] = NULL;
+    command = new Command(VOID_COMMAND, rightEngine, leftEngine);
+    command->parameters[0][0] = NULL;
     return command;    
   }
 
   commandWord = strtok (NULL," \n");
   int i = 0;
   while (commandWord != NULL) {
-    strcpy(command->_parameters[i], commandWord);
+    strcpy(command->parameters[i], commandWord);
     commandWord = strtok(NULL, " \n;");
     i++;
   }
-  command->_parameters[i][0] = NULL;
+  command->parameters[i][0] = NULL;
   return command;
 }
 
@@ -157,25 +157,25 @@ void EngineController::processCommand(Command* command) {
 }
 
 void EngineController::stopEverything() {  
-  _rightEngine->stop();
-  _leftEngine->stop();
+  rightEngine->stop();
+  leftEngine->stop();
   endTimestamp = 0;
 }
 
 /*************************************************************************/
 
 Command::Command(byte opCode, Engine* rightEngine, Engine* leftEngine) {
-  _opCode = opCode;
-  _leftEngine = leftEngine;
-  _rightEngine = rightEngine;
+  this->opCode = opCode;
+  this->leftEngine = leftEngine;
+  this->rightEngine = rightEngine;
 };
 
 void Command::run() {
-  if (_opCode == NOOP) {
+  if (opCode == NOOP) {
     return;
   }
   int speed;
-  switch (_opCode) {
+  switch (opCode) {
     case TEMBLEQUE:      
       setTemblequeEndTimestamp();
       performTembleque();
@@ -184,7 +184,7 @@ void Command::run() {
 }
 
 int Command::getDuration() {
-  return parseParameter(_parameters[0]);
+  return parseParameter(parameters[0]);
 }
 
 int Command::parseParameter(char* parameter) {
@@ -201,11 +201,11 @@ int Command::parseParameter(char* parameter) {
 void Command::performTembleque() {  
   if (millis() >= temblequeEndTimestamp) {     
     if (temblequeDirection) {
-      _rightEngine->forwards(MAX_SPEED);
-      _leftEngine->backwards(MAX_SPEED);
+      rightEngine->forwards(MAX_SPEED);
+      leftEngine->backwards(MAX_SPEED);
     } else {
-      _rightEngine->backwards(MAX_SPEED);
-      _leftEngine->forwards(MAX_SPEED);
+      rightEngine->backwards(MAX_SPEED);
+      leftEngine->forwards(MAX_SPEED);
     }
     temblequeDirection = !temblequeDirection;
     setTemblequeEndTimestamp();
