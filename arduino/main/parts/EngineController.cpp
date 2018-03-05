@@ -31,13 +31,14 @@ class TimedCommand : public Command {
     }
     
     void stop() {
+      endTimestamp = 0;
       command->stop();
     }
 
     void continueCommand() {
       if (endTimestamp > 0) {
         if (millis() >= endTimestamp) {      
-          command->stop();
+          stop();
         } else {
           command->continueCommand();
         }
