@@ -9,6 +9,7 @@ class Command {
   public:
     Command(byte opCode, Engine* rightEngine, Engine* leftEngine);
     virtual void run();
+    virtual void stop();
     void performTembleque();
     int getDuration();
     byte opCode;

@@ -86,7 +86,8 @@ void EngineController::executeCommand(char* commandStr) {
 void EngineController::continueCommand() {    
   if (endTimestamp > 0) {
     if (millis() >= endTimestamp) {      
-      stopEverything();
+      command->stop();
+      endTimestamp = 0;
     } else if (command->opCode == TEMBLEQUE) {
       command->performTembleque();
     }
@@ -156,12 +157,6 @@ void EngineController::processCommand(Command* command) {
   command->run();
 }
 
-void EngineController::stopEverything() {  
-  rightEngine->stop();
-  leftEngine->stop();
-  endTimestamp = 0;
-}
-
 /*************************************************************************/
 
 Command::Command(byte opCode, Engine* rightEngine, Engine* leftEngine) {
@@ -181,6 +176,11 @@ void Command::run() {
       performTembleque();
       break;
   }
+}
+
+void Command::stop() {
+  rightEngine->stop();
+  leftEngine->stop();
 }
 
 int Command::getDuration() {
