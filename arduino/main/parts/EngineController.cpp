@@ -202,8 +202,7 @@ char* EngineController::readLine() {
 
 Command* EngineController::parseCommand(char* readLine) {
   Command* command;
-  char* commandWord;
-  commandWord = strtok(readLine, " \n;");
+  char* commandWord = strtok(readLine, " \n;");
   if (strcmp(commandWord, "MOVE_FORWARDS") == 0) {
     command = new MoveForwardsCommand(rightEngine, leftEngine);
   } else if (strcmp(commandWord, "MOVE_BACKWARDS") == 0) {
@@ -215,20 +214,16 @@ Command* EngineController::parseCommand(char* readLine) {
   } else if (strcmp(commandWord, "TEMBLEQUE") == 0) {
     command = new TemblequeCommand(rightEngine, leftEngine);
   } else if (strcmp(commandWord, "NOOP") == 0) {
-    command = new Command(NOOP);
-    command->parameters[0][0] = NULL;
-    return command;
+    return new Command(NOOP);
   } else {
-    command = new Command(VOID_COMMAND);
-    command->parameters[0][0] = NULL;
-    return command;    
+    return new Command(VOID_COMMAND);
   }
 
-  commandWord = strtok (NULL," \n");
+  char* parameters = strtok (NULL," \n");
   int i = 0;
-  while (commandWord != NULL) {
-    strcpy(command->parameters[i], commandWord);
-    commandWord = strtok(NULL, " \n;");
+  while (parameters != NULL) {
+    strcpy(command->parameters[i], parameters);
+    parameters = strtok(NULL, " \n;");
     i++;
   }
   command->parameters[i][0] = NULL;
@@ -246,7 +241,9 @@ Command::Command(byte opCode) {
   this->opCode = opCode;
 };
 
-void Command::run() {}
+void Command::run() {
+  parameters[0][0] = NULL;
+}
 
 void Command::stop() {}
 
