@@ -10,7 +10,7 @@ class Command {
     Command(byte opCode, Engine* rightEngine, Engine* leftEngine);
     virtual void run();
     virtual void stop();
-    void performTembleque();
+    virtual void continueCommand();
     int getDuration();
     byte opCode;
     char parameters[10][30];
@@ -18,10 +18,6 @@ class Command {
     Engine* rightEngine;
     Engine* leftEngine;
     int parseParameter(char* parameter);
-  private:
-    uint8_t temblequeDirection;
-    unsigned long temblequeEndTimestamp;
-    void setTemblequeEndTimestamp();
 };
 
 class EngineController

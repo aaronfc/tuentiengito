@@ -63,6 +63,42 @@ class MoveLeftCommand : public Command {
     }
 };
 
+class TemblequeCommand : public Command {
+  private:
+    uint8_t temblequeDirection;
+    unsigned long temblequeEndTimestamp;
+
+    void performTembleque() {  
+      if (millis() >= temblequeEndTimestamp) {     
+        if (temblequeDirection) {
+          rightEngine->forwards(MAX_SPEED);
+          leftEngine->backwards(MAX_SPEED);
+        } else {
+          rightEngine->backwards(MAX_SPEED);
+          leftEngine->forwards(MAX_SPEED);
+        }
+        temblequeDirection = !temblequeDirection;
+        setTemblequeEndTimestamp();
+      }
+    }
+
+    void setTemblequeEndTimestamp() {
+      temblequeEndTimestamp = millis() + 100;
+    }
+
+  public:
+    TemblequeCommand(Engine* rightEngine, Engine* leftEngine): Command(TEMBLEQUE, rightEngine, leftEngine){};
+
+    void run() {
+      setTemblequeEndTimestamp();
+      performTembleque();
+    }
+
+    void continueCommand() {
+      performTembleque();
+    }
+};
+
 EngineController::EngineController(Engine* rightEngine, Engine* leftEngine) {
   this->rightEngine = rightEngine;
   this->leftEngine = leftEngine;
@@ -88,8 +124,8 @@ void EngineController::continueCommand() {
     if (millis() >= endTimestamp) {      
       command->stop();
       endTimestamp = 0;
-    } else if (command->opCode == TEMBLEQUE) {
-      command->performTembleque();
+    } else {
+      command->continueCommand();
     }
   }
 }
@@ -130,7 +166,7 @@ Command* EngineController::parseCommand(char* readLine) {
   } else if (strcmp(commandWord, "TURN_RIGHT") == 0) {
     command = new MoveRightCommand(rightEngine, leftEngine);
   } else if (strcmp(commandWord, "TEMBLEQUE") == 0) {
-    command = new Command(TEMBLEQUE, rightEngine, leftEngine);
+    command = new TemblequeCommand(rightEngine, leftEngine);
   } else if (strcmp(commandWord, "NOOP") == 0) {
     command = new Command(NOOP, rightEngine, leftEngine);
     command->parameters[0][0] = NULL;
@@ -165,23 +201,14 @@ Command::Command(byte opCode, Engine* rightEngine, Engine* leftEngine) {
   this->rightEngine = rightEngine;
 };
 
-void Command::run() {
-  if (opCode == NOOP) {
-    return;
-  }
-  int speed;
-  switch (opCode) {
-    case TEMBLEQUE:      
-      setTemblequeEndTimestamp();
-      performTembleque();
-      break;
-  }
-}
+void Command::run() {}
 
 void Command::stop() {
   rightEngine->stop();
   leftEngine->stop();
 }
+
+void Command::continueCommand() {}
 
 int Command::getDuration() {
   return parseParameter(parameters[0]);
@@ -198,20 +225,3 @@ int Command::parseParameter(char* parameter) {
   return intParameter;
 }
 
-void Command::performTembleque() {  
-  if (millis() >= temblequeEndTimestamp) {     
-    if (temblequeDirection) {
-      rightEngine->forwards(MAX_SPEED);
-      leftEngine->backwards(MAX_SPEED);
-    } else {
-      rightEngine->backwards(MAX_SPEED);
-      leftEngine->forwards(MAX_SPEED);
-    }
-    temblequeDirection = !temblequeDirection;
-    setTemblequeEndTimestamp();
-  }
-}
-
-void Command::setTemblequeEndTimestamp() {
-  temblequeEndTimestamp = millis() + 100;
-}
