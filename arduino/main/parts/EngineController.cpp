@@ -16,10 +16,56 @@
 #define TEMBLEQUE 5
 
 
-class MoveForwardsCommand : public Command {
+class TimedCommand : public Command {
+  private:
+    int endTimestamp;
+    Command* command;
+  public:
+    TimedCommand(Command* command): Command(command->opCode) {
+      this->command = command;
+    }
+
+    void run() {
+      endTimestamp = millis() + command->getDuration();
+      command->run();
+    }
+    
+    void stop() {
+      command->stop();
+    }
+
+    void continueCommand() {
+      if (endTimestamp > 0) {
+        if (millis() >= endTimestamp) {      
+          command->stop();
+        } else {
+          command->continueCommand();
+        }
+      }
+    }
+};
+
+class MovementCommand : public Command {
+  protected:
+    Engine* rightEngine;
+    Engine* leftEngine;
+
+  public:
+    MovementCommand(byte opCode, Engine* rightEngine, Engine* leftEngine): Command(opCode){
+      this->rightEngine = rightEngine;
+      this->leftEngine = leftEngine;
+    };
+
+    void stop() {
+      rightEngine->stop();
+      leftEngine->stop();  
+    }
+};
+
+class MoveForwardsCommand : public MovementCommand {
   public:
     
-    MoveForwardsCommand(Engine* rightEngine, Engine* leftEngine): Command(MOVE_FORWARDS, rightEngine, leftEngine){};
+    MoveForwardsCommand(Engine* rightEngine, Engine* leftEngine): MovementCommand(MOVE_FORWARDS, rightEngine, leftEngine){};
 
     void run() {
       int speed = parseParameter(parameters[1]);      
@@ -28,10 +74,10 @@ class MoveForwardsCommand : public Command {
     }
 };
 
-class MoveBackwardsCommand : public Command {
+class MoveBackwardsCommand : public MovementCommand {
   public:
     
-    MoveBackwardsCommand(Engine* rightEngine, Engine* leftEngine): Command(MOVE_BACKWARDS, rightEngine, leftEngine){};
+    MoveBackwardsCommand(Engine* rightEngine, Engine* leftEngine): MovementCommand(MOVE_BACKWARDS, rightEngine, leftEngine){};
 
     void run() {
       int speed = parseParameter(parameters[1]);      
@@ -41,10 +87,10 @@ class MoveBackwardsCommand : public Command {
 };
 
 
-class MoveRightCommand : public Command {
+class MoveRightCommand : public MovementCommand {
   public:
     
-    MoveRightCommand(Engine* rightEngine, Engine* leftEngine): Command(TURN_RIGHT, rightEngine, leftEngine){};
+    MoveRightCommand(Engine* rightEngine, Engine* leftEngine): MovementCommand(TURN_RIGHT, rightEngine, leftEngine){};
 
     void run() {
       rightEngine->forwards(MAX_SPEED);
@@ -52,10 +98,10 @@ class MoveRightCommand : public Command {
     }
 };
 
-class MoveLeftCommand : public Command {
+class MoveLeftCommand : public MovementCommand {
   public:
     
-    MoveLeftCommand(Engine* rightEngine, Engine* leftEngine): Command(TURN_LEFT, rightEngine, leftEngine){};
+    MoveLeftCommand(Engine* rightEngine, Engine* leftEngine): MovementCommand(TURN_LEFT, rightEngine, leftEngine){};
 
     void run() {
       rightEngine->stop();
@@ -63,7 +109,7 @@ class MoveLeftCommand : public Command {
     }
 };
 
-class TemblequeCommand : public Command {
+class TemblequeCommand : public MovementCommand {
   private:
     uint8_t temblequeDirection;
     unsigned long temblequeEndTimestamp;
@@ -87,7 +133,7 @@ class TemblequeCommand : public Command {
     }
 
   public:
-    TemblequeCommand(Engine* rightEngine, Engine* leftEngine): Command(TEMBLEQUE, rightEngine, leftEngine){};
+    TemblequeCommand(Engine* rightEngine, Engine* leftEngine): MovementCommand(TEMBLEQUE, rightEngine, leftEngine){};
 
     void run() {
       setTemblequeEndTimestamp();
@@ -168,11 +214,11 @@ Command* EngineController::parseCommand(char* readLine) {
   } else if (strcmp(commandWord, "TEMBLEQUE") == 0) {
     command = new TemblequeCommand(rightEngine, leftEngine);
   } else if (strcmp(commandWord, "NOOP") == 0) {
-    command = new Command(NOOP, rightEngine, leftEngine);
+    command = new Command(NOOP);
     command->parameters[0][0] = NULL;
     return command;
   } else {
-    command = new Command(VOID_COMMAND, rightEngine, leftEngine);
+    command = new Command(VOID_COMMAND);
     command->parameters[0][0] = NULL;
     return command;    
   }
@@ -195,18 +241,13 @@ void EngineController::processCommand(Command* command) {
 
 /*************************************************************************/
 
-Command::Command(byte opCode, Engine* rightEngine, Engine* leftEngine) {
+Command::Command(byte opCode) {
   this->opCode = opCode;
-  this->leftEngine = leftEngine;
-  this->rightEngine = rightEngine;
 };
 
 void Command::run() {}
 
-void Command::stop() {
-  rightEngine->stop();
-  leftEngine->stop();
-}
+void Command::stop() {}
 
 void Command::continueCommand() {}
 

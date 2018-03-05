@@ -7,7 +7,7 @@
 
 class Command {
   public:
-    Command(byte opCode, Engine* rightEngine, Engine* leftEngine);
+    Command(byte opCode);
     virtual void run();
     virtual void stop();
     virtual void continueCommand();
@@ -15,8 +15,6 @@ class Command {
     byte opCode;
     char parameters[10][30];
   protected:
-    Engine* rightEngine;
-    Engine* leftEngine;
     int parseParameter(char* parameter);
 };
 
