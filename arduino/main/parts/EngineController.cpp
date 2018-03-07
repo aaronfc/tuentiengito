@@ -171,6 +171,7 @@ void EngineController::continueCommand() {
     if (millis() >= endTimestamp) {      
       command->stop();
       endTimestamp = 0;
+      delete command;
     } else {
       command->continueCommand();
     }
@@ -240,6 +241,10 @@ void EngineController::processCommand(Command* command) {
 Command::Command(byte opCode) {
   this->opCode = opCode;
 };
+
+Command::~Command() {
+  delete parameters;
+}
 
 void Command::run() {
   parameters[0][0] = NULL;

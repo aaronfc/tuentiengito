@@ -8,6 +8,7 @@
 class Command {
   public:
     Command(byte opCode);
+    ~Command();
     virtual void run();
     virtual void stop();
     virtual void continueCommand();
