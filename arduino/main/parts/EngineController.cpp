@@ -154,6 +154,7 @@ EngineController::EngineController(Engine* rightEngine, Engine* leftEngine) {
 void EngineController::setup() {
   rightEngine->setup();
   leftEngine->setup();
+  command = new Command(VOID_COMMAND);
 }
 
 void EngineController::executeCommand(char* commandStr) {
