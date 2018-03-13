@@ -168,15 +168,7 @@ void EngineController::executeCommand(char* commandStr) {
 }
 
 void EngineController::continueCommand() {    
-  if (endTimestamp > 0) {
-    if (millis() >= endTimestamp) {      
-      command->stop();
-      endTimestamp = 0;
-      delete command;
-    } else {
-      command->continueCommand();
-    }
-  }
+  command->continueCommand();
 }
 
 char* EngineController::readLine() {
@@ -229,11 +221,10 @@ Command* EngineController::parseCommand(char* readLine) {
     i++;
   }
   command->parameters[i][0] = NULL;
-  return command;
+  return new TimedCommand(command);
 }
 
 void EngineController::processCommand(Command* command) {
-  endTimestamp = millis() + command->getDuration();
   command->run();
 }
 

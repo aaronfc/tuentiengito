@@ -28,7 +28,6 @@ class EngineController
     void executeCommand(char* str);
     void continueCommand();
   private:
-    unsigned long endTimestamp;
     Command* parseCommand(char* command);
     void processCommand(Command* command);
     void stopEverything();
