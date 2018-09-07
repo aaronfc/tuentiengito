@@ -5,7 +5,6 @@
 #endif
 
 #define MAX_SPEED 255
-#define BUFFER_DELAY 6
 
 #define VOID_COMMAND -1
 #define NOOP  0
@@ -29,7 +28,7 @@ class TimedCommand : public Command {
       endTimestamp = millis() + command->getDuration();
       command->run();
     }
-    
+
     void stop() {
       endTimestamp = 0;
       command->stop();
@@ -37,7 +36,7 @@ class TimedCommand : public Command {
 
     void continueCommand() {
       if (endTimestamp > 0) {
-        if (millis() >= endTimestamp) {      
+        if (millis() >= endTimestamp) {
           stop();
         } else {
           command->continueCommand();
@@ -59,17 +58,17 @@ class MovementCommand : public Command {
 
     void stop() {
       rightEngine->stop();
-      leftEngine->stop();  
+      leftEngine->stop();
     }
 };
 
 class MoveForwardsCommand : public MovementCommand {
   public:
-    
+
     MoveForwardsCommand(Engine* rightEngine, Engine* leftEngine): MovementCommand(MOVE_FORWARDS, rightEngine, leftEngine){};
 
     void run() {
-      int speed = parseParameter(parameters[1]);      
+      int speed = parseParameter(parameters[1]);
       rightEngine->forwards(speed);
       leftEngine->forwards(speed);
     }
@@ -77,11 +76,11 @@ class MoveForwardsCommand : public MovementCommand {
 
 class MoveBackwardsCommand : public MovementCommand {
   public:
-    
+
     MoveBackwardsCommand(Engine* rightEngine, Engine* leftEngine): MovementCommand(MOVE_BACKWARDS, rightEngine, leftEngine){};
 
     void run() {
-      int speed = parseParameter(parameters[1]);      
+      int speed = parseParameter(parameters[1]);
       rightEngine->backwards(speed);
       leftEngine->backwards(speed);
     }
@@ -90,7 +89,7 @@ class MoveBackwardsCommand : public MovementCommand {
 
 class MoveRightCommand : public MovementCommand {
   public:
-    
+
     MoveRightCommand(Engine* rightEngine, Engine* leftEngine): MovementCommand(TURN_RIGHT, rightEngine, leftEngine){};
 
     void run() {
@@ -101,7 +100,7 @@ class MoveRightCommand : public MovementCommand {
 
 class MoveLeftCommand : public MovementCommand {
   public:
-    
+
     MoveLeftCommand(Engine* rightEngine, Engine* leftEngine): MovementCommand(TURN_LEFT, rightEngine, leftEngine){};
 
     void run() {
@@ -115,8 +114,8 @@ class TemblequeCommand : public MovementCommand {
     uint8_t temblequeDirection;
     unsigned long temblequeEndTimestamp;
 
-    void performTembleque() {  
-      if (millis() >= temblequeEndTimestamp) {     
+    void performTembleque() {
+      if (millis() >= temblequeEndTimestamp) {
         if (temblequeDirection) {
           rightEngine->forwards(MAX_SPEED);
           leftEngine->backwards(MAX_SPEED);
@@ -167,28 +166,10 @@ void EngineController::executeCommand(char* commandStr) {
   // delete command;
 }
 
-void EngineController::continueCommand() {    
+void EngineController::continueCommand() {
   command->continueCommand();
 }
 
-char* EngineController::readLine() {
-  char* readString = (char*) malloc(100);
-  bool eof = false;
-  int i = 0;
-  while (Serial.available() && !eof) {
-    delay(BUFFER_DELAY);  //delay to allow buffer to fill 
-    if (Serial.available() > 0) {
-      char c = Serial.read();  //gets one byte from serial buffer
-      readString[i] = c; //makes the string readString
-      if (c == ';' || c == '\n') {
-        eof = true;
-      }
-      i++;
-    }
-  }
-  readString[i] = '\0';
-  return readString;
-}
 
 /*
  * PRIVATE METHODS
@@ -260,4 +241,3 @@ int Command::parseParameter(char* parameter) {
   }
   return intParameter;
 }
-

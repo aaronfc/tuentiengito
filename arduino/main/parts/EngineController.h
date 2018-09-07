@@ -24,7 +24,6 @@ class EngineController
   public:
     EngineController(Engine* rightEngine, Engine* leftEngine);
     void setup();
-    char* readLine();
     void executeCommand(char* str);
     void continueCommand();
   private:

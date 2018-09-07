@@ -3,6 +3,7 @@
 #include "parts/LedStrip.cpp"
 #include "parts/Engine.cpp"
 #include "FastRunningMedian.h"
+#include "io.cpp"
 
 #define ENG_A_1 7
 #define ENG_A_2 6
@@ -27,7 +28,7 @@ void setup()
 {
   delay(3000); // power-up safety delay
   Serial.begin(BAUD_RATE);
-  
+
   ultrasound1 = new Ultrasound(US_TRIGGER_PIN, US_ECHO_PIN);
   ultrasound1->setup();
   Engine* rightEngine = new Engine(ENG_A_1, ENG_A_2, ENG_A_3);
@@ -38,39 +39,42 @@ void setup()
   initLedStrip();
 }
 
-void sendEvent(String name, int value)
-{
-  Serial.print(name);
-  Serial.print(":");
-  Serial.println(value);
-  Serial.flush(); // Experimental
-}
-
 void loop()
 {
   // Read sensors
+
   us1Median.addValue(ultrasound1->getDistance());
   int us1Distance = us1Median.getMedian();
 
   // Send events
   if (lastUs1Value != us1Distance) {
     lastUs1Value = us1Distance;
-    sendEvent("US1", us1Distance);
+    io::sendEvent("US1", us1Distance);
   }
 
-  // Commands
-  char* command = engineController->readLine();
 
-  // EngineController  
-  if (command[0] != '\0') {    
-    engineController->executeCommand(command);  
+  // Commands
+  //char* input = io::readLine();
+  // String command = Command::parse(input);
+  //if (command != NULL) {
+  //  if (engineController->understands(command)) {
+  //    engineController->do(command);
+  //  } else {
+  //    engineController->idle();
+  //  }
+  //}
+
+  // EngineController // @aaron: Previous behaviour
+  char* command = io::readLine();
+  if (command[0] != '\0') {
+    engineController->executeCommand(command);
   } else {
     engineController->continueCommand();
   }
 
   // LedsController
-  refreshLeds(command);
-  
+  // refreshLeds(command); // @aaron: Delete?
+
   // Free command
   free(command);
 }
