@@ -5,32 +5,17 @@
 #include "Engine.h"
 #endif
 
-class Command {
-  public:
-    Command(byte opCode);
-    ~Command();
-    virtual void run();
-    virtual void stop();
-    virtual void continueCommand();
-    int getDuration();
-    byte opCode;
-    char parameters[10][30];
-  protected:
-    int parseParameter(char* parameter);
-};
-
 class EngineController
 {
   public:
     EngineController(Engine* rightEngine, Engine* leftEngine);
     void setup();
-    void executeCommand(char* str);
-    void continueCommand();
+    void moveForward(int speed);
+    void moveBackward(int speed);
+    void moveTurningRight(int speed);
+    void moveTurningLeft(int speed);
+    void stop();
   private:
-    Command* parseCommand(char* command);
-    void processCommand(Command* command);
-    void stopEverything();
-    Command* command;
     Engine* rightEngine;
     Engine* leftEngine;
 };
