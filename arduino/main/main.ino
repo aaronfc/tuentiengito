@@ -2,9 +2,9 @@
 #include "parts/EngineController.cpp"
 #include "parts/Engine.cpp"
 #include "FastRunningMedian.h"
-//#include "io.cpp" // Deprecated
 #include "tasks.cpp"
 #include <Input.h>
+#include "log.h"
 
 // Engine pins
 #define ENG_A_1 7
@@ -21,11 +21,11 @@ const int US_ECHO_PIN = 12;
 // SERIAL
 const long BAUD_RATE = 9600;
 
-
 Ultrasound *ultrasound1 = new Ultrasound(US_TRIGGER_PIN, US_ECHO_PIN);
 int lastUs1Value = 0;
 FastRunningMedian<unsigned int,5,30> us1Median;
 EngineController *engineController;
+Log logger = Log();
 
 // Tasks
 Task *currentTask = 0;
@@ -35,20 +35,14 @@ Task *nextTask = 0;
 void moveForward(CommandParams &params, Stream &response) {
   int speed = params.getParamAsInt(0);
   int time = params.getParamAsInt(1);
-  response.print("[INPUT] MOVE_FORWARDS speed:");
-  response.print(speed);
-  response.print(" time:");
-  response.println(time);
+  logger.d("[INPUT] MOVE_FORWARDS speed:").d(speed).d(" time:").d(time).eol();
   if (nextTask) { delete nextTask; }
   nextTask = new MoveForwardTask(engineController, speed, time);
 }
 void moveBackward(CommandParams &params, Stream &response) {
   int speed = params.getParamAsInt(0);
   int time = params.getParamAsInt(1);
-  response.print("[INPUT] MOVE_BACKWARDS speed:");
-  response.print(speed);
-  response.print(" time:");
-  response.println(time);
+  logger.d("[INPUT] MOVE_BACKWARDS speed:").d(speed).d(" time:").d(time).eol();
   if (nextTask) { delete nextTask; }
   nextTask = new MoveForwardTask(engineController, speed, time);
 }
@@ -70,7 +64,7 @@ void setup()
   engineController->setup();
 
   input.begin(BAUD_RATE, commandDefinitions);
-  Serial.println("Setup completed!");
+  logger.enable();
 }
 
 void loop()
@@ -83,7 +77,7 @@ void loop()
   // Send events
   //if (lastUs1Value != us1Distance) {
   //  lastUs1Value = us1Distance;
-  //  oi::sendEvent("US1", us1Distance);
+  //  sendEvent("US1", us1Distance);
   //}
 
   // EngineController // @aaron: Previous behaviour
@@ -101,14 +95,14 @@ void loop()
 
   // Task Manager
   if (nextTask) { // New task!
-      Serial.println("[TASKMANAGER] New task!");
+      logger.d("[TASKMANAGER] New task!").eol();
       if (currentTask) { // Stop current task
-        Serial.println("[TASKMANAGER] Stopping current task...");
+        logger.d("[TASKMANAGER] Stopping current task...").eol();
         currentTask->stop();
         delete currentTask;
-        Serial.println("[TASKMANAGER] Stopped task");
+        logger.d("[TASKMANAGER] Stopped task").eol();
       }
-      Serial.println("[TASKMANAGER] Starting new task...");
+      logger.d("[TASKMANAGER] Starting new task...").eol();
       currentTask = nextTask;
       currentTask->start();
       nextTask = 0;
@@ -116,16 +110,27 @@ void loop()
     if (currentTask) { // If already on a task:
         if (currentTask->keepGoing()) { // And has to keep running
           if (millis() % 1000 == 0) {
-            Serial.println("[TASKMANAGER] Keep going...");
+            logger.d("[TASKMANAGER] Keep going...").eol();
           }
           currentTask->update();
         } else { // Time to stop
-          Serial.println("[TASKMANAGER] Completed task. Stopping...");
+          logger.d("[TASKMANAGER] Completed task. Stopping...").eol();
           currentTask->stop();
           delete currentTask;
           currentTask = 0;
-          Serial.println("[TASKMANAGER] Stopped task");
+          logger.d("[TASKMANAGER] Stopped task").eol();
         }
     }
   }
+}
+
+
+// IO
+
+void sendEvent(String name, int value)
+{
+  Serial.print(name);
+  Serial.print(":");
+  Serial.println(value);
+  Serial.flush(); // Experimental
 }
