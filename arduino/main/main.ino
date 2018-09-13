@@ -33,15 +33,15 @@ Task *nextTask = 0;
 
 // Actions and input commands setup
 void moveForward(CommandParams &params, Stream &response) {
-  int speed = params.getParamAsInt(0);
-  int time = params.getParamAsInt(1);
+  int time = params.getParamAsInt(0);
+  int speed = params.getParamAsInt(1);
   logger.d("[INPUT] MOVE_FORWARDS speed:").d(speed).d(" time:").d(time).eol();
   if (nextTask) { delete nextTask; }
   nextTask = new MoveForwardTask(engineController, speed, time);
 }
 void moveBackward(CommandParams &params, Stream &response) {
-  int speed = params.getParamAsInt(0);
-  int time = params.getParamAsInt(1);
+  int time = params.getParamAsInt(0);
+  int speed = params.getParamAsInt(1);
   logger.d("[INPUT] MOVE_BACKWARDS speed:").d(speed).d(" time:").d(time).eol();
   if (nextTask) { delete nextTask; }
   nextTask = new MoveBackwardTask(engineController, speed, time);
@@ -95,7 +95,7 @@ void setup()
   engineController->setup();
 
   input.begin(BAUD_RATE, commandDefinitions);
-  logger.enable();
+  // logger.enable();
 }
 
 void loop()
