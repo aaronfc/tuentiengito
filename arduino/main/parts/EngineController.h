@@ -16,6 +16,8 @@ class EngineController
     void moveBackward(int speed);
     void moveTurningRight(int speed);
     void moveTurningLeft(int speed);
+    void sharpTurningLeft(int speed);
+    void sharpTurningRight(int speed);
     void stop();
   private:
     Engine* rightEngine;

@@ -34,6 +34,16 @@ void EngineController::moveTurningLeft(int speed) {
   leftEngine->stop();
 }
 
+void EngineController::sharpTurningLeft(int speed) {
+  rightEngine->forwards(speed);
+  leftEngine->backwards(speed);
+}
+
+void EngineController::sharpTurningRight(int speed) {
+  rightEngine->backwards(speed);
+  leftEngine->forwards(speed);
+}
+
 void EngineController::stop() {
   rightEngine->stop();
   leftEngine->stop();

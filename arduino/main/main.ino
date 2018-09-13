@@ -67,11 +67,18 @@ void stop(CommandParams &params, Stream &response) {
     currentTask = 0;
   }
 }
+void shake(CommandParams &params, Stream &response) {
+  int time = params.getParamAsInt(0);
+  logger.d("[INPUT] SHAKE").eol();
+  if (nextTask) { delete nextTask; }
+  nextTask = new ShakeTask(engineController, time);
+}
 const InputCommand commandDefinitions[] PROGMEM = defineCommands(
   command("MOVE_FORWARDS", 2, &moveForward),
   command("MOVE_BACKWARDS", 2, &moveBackward),
   command("TURN_RIGHT", 1, &turnRight),
   command("TURN_LEFT", 1, &turnLeft),
+  command("TEMBLEQUE", 1, &shake),
   command("STOP", 0, &stop)
 );
 Input input(60);

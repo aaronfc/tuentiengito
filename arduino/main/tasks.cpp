@@ -20,19 +20,24 @@ class Task {
 
 class MovementTask : public Task {
   private:
-    int time;
-    int endTime;
+    unsigned int time;
+    unsigned long endTime;
   public:
-    MovementTask(EngineController* ec, int time): Task() {
+    MovementTask(EngineController* ec, unsigned int time): Task() {
       this->ec = ec;
       this->time = time;
     }
     void start() {
+      // Serial.println("[" + typeid(this).name() + "] Starting...");
+      this->endTime = millis() + this->time;      
       this->perform();
-      this->endTime = millis() + this->time;
+      // Serial.println("[" + typeid(this).name() + "] Started");
     }
     bool keepGoing() {
-        return millis() < this->endTime;
+      Serial.print(this->endTime, 10);
+      Serial.print(" ");
+      Serial.println(millis(), 10);
+      return millis() < this->endTime;
     }
     void update() {} // Do nothing
     void stop() {
@@ -47,13 +52,8 @@ class MoveForwardTask : public MovementTask {
   private:
     int speed;
   public:
-    MoveForwardTask(EngineController* ec, int speed, int time): MovementTask(ec, time) {
+    MoveForwardTask(EngineController* ec, int speed, unsigned int time): MovementTask(ec, time) {
       this->speed = speed;
-    }
-    void start() {
-      Serial.println("[MoveForwardTask] Starting...");
-      MovementTask::start();
-      Serial.println("[MoveForwardTask] Started");
     }
     void update() {} // Do nothing
     void stop() {
@@ -71,13 +71,8 @@ class MoveBackwardTask : public MovementTask {
   private:
     int speed;
   public:
-    MoveBackwardTask(EngineController* ec, int speed, int time): MovementTask(ec, time) {
+    MoveBackwardTask(EngineController* ec, int speed, unsigned int time): MovementTask(ec, time) {
       this->speed = speed;
-    }
-    void start() {
-      Serial.println("[MoveBackwardTask] Starting...");
-      MovementTask::start();
-      Serial.println("[MoveBackwardTask] Started");
     }
     void stop() {
       Serial.println("[MoveBackwardTask] Stopping...");
@@ -92,12 +87,7 @@ class MoveBackwardTask : public MovementTask {
 
 class TurnRightTask : public MovementTask {
   public:
-    TurnRightTask(EngineController* ec, int time): MovementTask(ec, time){};
-    void start() {
-      Serial.println("[TurnRightTask] Starting...");
-      MovementTask::start();
-      Serial.println("[TurnRightTask] Started");
-    }
+    TurnRightTask(EngineController* ec, unsigned int time): MovementTask(ec, time){};
     void stop() {
       Serial.println("[TurnRightTask] Stopping...");
       MovementTask::stop();
@@ -111,12 +101,7 @@ class TurnRightTask : public MovementTask {
 
 class TurnLeftTask : public MovementTask {
   public:
-    TurnLeftTask(EngineController* ec, int time): MovementTask(ec, time){};
-    void start() {
-      Serial.println("[TurnLeftTask] Starting...");
-      MovementTask::start();
-      Serial.println("[TurnLeftTask] Started");
-    }
+    TurnLeftTask(EngineController* ec, unsigned int time): MovementTask(ec, time){};
     void stop() {
       Serial.println("[TurnLeftTask] Stopping...");
       MovementTask::stop();
@@ -125,5 +110,34 @@ class TurnLeftTask : public MovementTask {
   protected: 
     void perform() {
       this->ec->moveTurningLeft(MAX_SPEED);
+    }
+};
+
+class ShakeTask : public MovementTask {
+  private:
+    uint8_t shakeDirection;
+    unsigned long shakeEndTimestamp;
+
+    void setShakeEndTimestamp() {
+      shakeEndTimestamp = millis() + 100;
+    }
+
+  public:
+    ShakeTask(EngineController* ec, unsigned int time): MovementTask(ec, time){};
+
+  protected:
+    void update() {  
+      if (millis() >= shakeEndTimestamp) {     
+        if (shakeDirection) {
+          this->ec->sharpTurningLeft(MAX_SPEED);
+        } else {
+          this->ec->sharpTurningRight(MAX_SPEED);
+        }
+        shakeDirection = !shakeDirection;
+        setShakeEndTimestamp();
+      }
+    }
+    void perform() {
+      setShakeEndTimestamp();      
     }
 };
