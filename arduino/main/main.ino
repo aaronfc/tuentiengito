@@ -58,11 +58,21 @@ void turnLeft(CommandParams &params, Stream &response) {
   if (nextTask) { delete nextTask; }
   nextTask = new TurnLeftTask(engineController, time);
 }
+void stop(CommandParams &params, Stream &response) {
+  logger.d("[INPUT] STOP").eol();
+  if (nextTask) { delete nextTask; }
+  if (currentTask) { 
+    currentTask->stop();
+    delete currentTask;
+    currentTask = 0;
+  }
+}
 const InputCommand commandDefinitions[] PROGMEM = defineCommands(
   command("MOVE_FORWARDS", 2, &moveForward),
   command("MOVE_BACKWARDS", 2, &moveBackward),
   command("TURN_RIGHT", 1, &turnRight),
-  command("TURN_LEFT", 1, &moveBackward)
+  command("TURN_LEFT", 1, &turnLeft),
+  command("STOP", 0, &stop)
 );
 Input input(60);
 
