@@ -44,7 +44,7 @@ void moveBackward(CommandParams &params, Stream &response) {
   int time = params.getParamAsInt(1);
   logger.d("[INPUT] MOVE_BACKWARDS speed:").d(speed).d(" time:").d(time).eol();
   if (nextTask) { delete nextTask; }
-  nextTask = new MoveForwardTask(engineController, speed, time);
+  nextTask = new MoveBackwardTask(engineController, speed, time);
 }
 void turnRight(CommandParams &params, Stream &response) {
   int time = params.getParamAsInt(0);

@@ -67,11 +67,11 @@ class MoveForwardTask : public MovementTask {
     }
 };
 
-class MoveBackwardsTask : public MovementTask {
+class MoveBackwardTask : public MovementTask {
   private:
     int speed;
   public:
-    MoveBackwardsTask(EngineController* ec, int speed, int time): MovementTask(ec, time) {
+    MoveBackwardTask(EngineController* ec, int speed, int time): MovementTask(ec, time) {
       this->speed = speed;
     }
     void start() {
