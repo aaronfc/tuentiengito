@@ -62,7 +62,7 @@ class MoveBackwardsTask : public Task {
     }
     void start() {
       // Engage engines in forward direction
-      this->ec->moveForward(this->speed);
+      this->ec->moveBackward(this->speed);
       this->endTime = millis() + this->time;
     }
     bool keepGoing() {
@@ -71,5 +71,48 @@ class MoveBackwardsTask : public Task {
     void update() {} // Do nothing
     void stop() {
       this->ec->stop();
+    }
+};
+
+class TurnTask : public Task {
+  private:
+    int time;
+    int endTime;
+  public:
+    TurnTask(EngineController* ec, int time): Task() {
+      this->ec = ec;
+      this->time = time;
+    }
+    void start() {
+      this->turn();
+      this->endTime = millis() + this->time;
+    }
+    bool keepGoing() {
+        return millis() < this->endTime;
+    }
+    void update() {} // Do nothing
+    void stop() {
+      this->ec->stop();
+    }
+  protected:
+    EngineController* ec;
+    virtual void turn();
+};
+
+class TurnRightTask : public TurnTask {
+  public:
+    TurnRightTask(EngineController* ec, int time): TurnTask(ec, time){};
+  protected:
+    void turn() {
+      this->ec->moveTurningRight(MAX_SPEED);
+    }
+};
+
+class TurnLeftTask : public TurnTask {
+  public:
+    TurnLeftTask(EngineController* ec, int time): TurnTask(ec, time){};
+  protected: 
+    void turn() {
+      this->ec->moveTurningLeft(MAX_SPEED);
     }
 };

@@ -46,9 +46,23 @@ void moveBackward(CommandParams &params, Stream &response) {
   if (nextTask) { delete nextTask; }
   nextTask = new MoveForwardTask(engineController, speed, time);
 }
+void turnRight(CommandParams &params, Stream &response) {
+  int time = params.getParamAsInt(0);
+  logger.d("[INPUT] TURN RIGHT speed:").d(" time:").d(time).eol();
+  if (nextTask) { delete nextTask; }
+  nextTask = new TurnRightTask(engineController, time);
+}
+void turnLeft(CommandParams &params, Stream &response) {
+  int time = params.getParamAsInt(0);
+  logger.d("[INPUT] TURN LEFT speed:").d(" time:").d(time).eol();
+  if (nextTask) { delete nextTask; }
+  nextTask = new TurnLeftTask(engineController, time);
+}
 const InputCommand commandDefinitions[] PROGMEM = defineCommands(
   command("MOVE_FORWARDS", 2, &moveForward),
-  command("MOVE_BACKWARDS", 2, &moveBackward)
+  command("MOVE_BACKWARDS", 2, &moveBackward),
+  command("TURN_RIGHT", 1, &turnRight),
+  command("TURN_LEFT", 1, &moveBackward)
 );
 Input input(60);
 
