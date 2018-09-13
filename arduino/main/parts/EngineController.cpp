@@ -4,8 +4,6 @@
 #include "Engine.h"
 #endif
 
-#define MAX_SPEED 255
-
 EngineController::EngineController(Engine* rightEngine, Engine* leftEngine) {
   this->rightEngine = rightEngine;
   this->leftEngine = leftEngine;
@@ -40,7 +38,6 @@ void EngineController::stop() {
   rightEngine->stop();
   leftEngine->stop();
 }
-
 
 /*
  * KEPT AS DOC OF COMMUNICATION PROTOCOL

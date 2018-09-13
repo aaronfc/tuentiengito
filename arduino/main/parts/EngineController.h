@@ -5,6 +5,8 @@
 #include "Engine.h"
 #endif
 
+#define MAX_SPEED 100
+
 class EngineController
 {
   public:
