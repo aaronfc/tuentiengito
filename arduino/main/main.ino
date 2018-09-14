@@ -19,7 +19,7 @@ const int US_TRIGGER_PIN = 13;
 const int US_ECHO_PIN = 12;
 
 // SERIAL
-const long BAUD_RATE = 9600;
+const long BAUD_RATE = 57600;
 
 Ultrasound *ultrasound1 = new Ultrasound(US_TRIGGER_PIN, US_ECHO_PIN);
 int lastUs1Value = 0;
